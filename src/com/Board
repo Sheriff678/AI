@@ -1,4 +1,4 @@
-package com;
+package com.company;
 
 public class Board
 {
@@ -14,7 +14,7 @@ public class Board
         {
             for(int y = 0; y < Y_SIZE; y++)
             {
-                for(int x = 0; z < X_SIZE; x++){board[z][y][x] = EMPTY;}
+                for(int x = 0; x < X_SIZE; x++){board[z][y][x] = EMPTY;}
             }
         }
     }
@@ -23,21 +23,38 @@ public class Board
     {
         winner = b.getWinner(); board = b.getBoard();
     }
-    
-    //public boolean makeMove(Move m, char p){}
-    //public void setLocation(Location l, char p){}
-    //public char getLocation(Location l){}
+
+    public Location makeMove(Move m, char p) // 6 is on the bottom, 0 is on top
+    {
+        if(isFull(m))
+        {
+            for(int x = 6; x >= 0; x--)
+            {
+                if(board[x][m.getRow()][m.getCol()] == EMPTY)
+                {
+                    board[x][m.getRow()][m.getCol()] = p; return new Location(m.getCol(), x, m.getRow());
+                }
+            }
+        }
+        return null;
+    }
+    public void setLocation(Location l, char p){board[l.getZ()][l.getY()][l.getX()] = p;}
+    public char getLocation(Location l){return board[l.getZ()][l.getY()][l.getX()];}
     public char getWinner(){return winner;}
     public char[][][] getBoard(){return board;}
-    // public boolean isFull(Move m){}
+    public boolean isFull(Move m)
+    {
+        if(board[m.getRow()][0][m.getCol()] == EMPTY){return true;}
+        return false;
+    }
     public void reset()
     {
-        winner = PLAYING; 
+        winner = PLAYING;
         for(int z = 0; z < Z_SIZE; z++)
         {
             for(int y = 0; y < Y_SIZE; y++)
             {
-                for(int x = 0; z < X_SIZE; x++){board[z][y][x] = EMPTY;}
+                for(int x = 0; x < X_SIZE; x++){board[z][y][x] = EMPTY;}
             }
         }
     }
