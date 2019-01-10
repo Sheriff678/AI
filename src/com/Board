@@ -2,13 +2,44 @@ package com;
 
 public class Board
 {
+    public static final int X_SIZE = 8, Y_SIZE = 7, Z_SIZE = 8;
+    public static final char TIE = 'T', RED = 'R', BLUE = 'B', EMPTY = '-', PLAYING = '-';
+    private char[][][] board;
+    private char winner;
+
     public Board()
     {
-
+        winner = PLAYING; board = new char[Z_SIZE][Y_SIZE][X_SIZE];
+        for(int z = 0; z < Z_SIZE; z++)
+        {
+            for(int y = 0; y < Y_SIZE; y++)
+            {
+                for(int x = 0; z < X_SIZE; x++){board[z][y][x] = EMPTY;}
+            }
+        }
     }
 
     public Board(Board b)
     {
-
+        winner = b.getWinner(); board = b.getBoard();
     }
+    
+    //public boolean makeMove(Move m, char p){}
+    //public void setLocation(Location l, char p){}
+    //public char getLocation(Location l){}
+    public char getWinner(){return winner;}
+    public char[][][] getBoard(){return board;}
+    // public boolean isFull(Move m){}
+    public void reset()
+    {
+        winner = PLAYING; 
+        for(int z = 0; z < Z_SIZE; z++)
+        {
+            for(int y = 0; y < Y_SIZE; y++)
+            {
+                for(int x = 0; z < X_SIZE; x++){board[z][y][x] = EMPTY;}
+            }
+        }
+    }
+    //public void draw(Graphics g){}
 }
