@@ -1,3 +1,4 @@
+
 package com.company;
 
 public class Board
@@ -26,27 +27,46 @@ public class Board
 
     public Location makeMove(Move m, char p) // 6 is on the bottom, 0 is on top
     {
-        if(isFull(m))
+        if(!isFull(m))
         {
-            for(int x = 6; x >= 0; x--)
+            for(int y = 6; y >= 0; y--)
             {
-                if(board[x][m.getRow()][m.getCol()] == EMPTY)
+                if(board[m.getCol()][y][m.getRow()] == EMPTY)
                 {
-                    board[x][m.getRow()][m.getCol()] = p; return new Location(m.getCol(), x, m.getRow());
+                    board[m.getCol()][y][m.getRow()] = p;
+                    return new Location(m.getCol(), y, m.getRow());
                 }
             }
         }
         return null;
     }
+
     public void setLocation(Location l, char p){board[l.getZ()][l.getY()][l.getX()] = p;}
+
     public char getLocation(Location l){return board[l.getZ()][l.getY()][l.getX()];}
+
     public char getWinner(){return winner;}
+
     public char[][][] getBoard(){return board;}
-    public boolean isFull(Move m)
+
+    public boolean isEmpty(Move m)
     {
-        if(board[m.getRow()][0][m.getCol()] == EMPTY){return true;}
+        for(int y=6; y >=0; y--)
+        {
+            if(board[m.getCol()][y][m.getRow()] == EMPTY)
+            return true;
+        }
+
         return false;
     }
+
+    public boolean isFull(Move m)
+    {
+        if(board[m.getRow()][0][m.getCol()] != EMPTY){return true;}
+
+        return false;
+    }
+
     public void reset()
     {
         winner = PLAYING;
@@ -58,5 +78,6 @@ public class Board
             }
         }
     }
+
     //public void draw(Graphics g){}
 }
