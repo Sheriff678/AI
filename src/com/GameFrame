@@ -1,0 +1,174 @@
+package com;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.applet.*;
+import java.io.File;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.ArrayList;
+
+public class GameFrame extends JFrame implements Runnable, KeyListener, MouseListener
+{
+
+    public static final int UPS = 60;
+
+    private BufferedImage buffer;
+    private double timeBetweenUpdates = 1000.0/UPS;
+
+    private Board b;
+    private HumanPlayer hp;
+    private RandomComputer rc;
+    private Move move;
+    private Location l;
+
+    public GameFrame()
+    {
+        super();
+
+        Scanner input = new Scanner(System.in);
+
+        addKeyListener(this);
+        addMouseListener(this);
+        setSize(200, 902);
+        setUndecorated(false);
+
+        buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+        b = new Board();
+
+        //-----------------------GAME-START--------------------------//
+        System.out.print("Enter name: ");
+        String name = input.next();
+        System.out.print("\n");
+
+        int color = (int)(Math.random()*1);
+
+        if(color == 1)
+        {
+            hp = new HumanPlayer(name, b.RED);
+            rc = new RandomComputer("Bot", b.BLUE);
+        }
+
+        else
+        {
+            hp = new HumanPlayer(name, b.BLUE);
+            rc = new RandomComputer("Bot", b.RED);
+        }
+
+        System.out.println("<---COLORS---> \nBlue-B\tRed-R\n");
+        System.out.println("Player Name: " + hp.getName() + "\nPlayer Color: " + hp.getLetter() + "\n");
+
+        try
+        {
+            Thread.sleep(1000);
+            System.out.print("INITIALIZING");
+            Thread.sleep(1000);
+            System.out.print(" . ");
+            Thread.sleep(1000);
+            System.out.print(" . ");
+            Thread.sleep(1000);
+            System.out.print(" . ");
+
+        } catch (InterruptedException e) { }
+
+
+        setVisible(true);
+
+        Thread t = new Thread(this);
+        t.start();
+    }
+
+
+    public void paint(Graphics g)
+    {
+        Graphics bg = buffer.getGraphics();
+        bg.setColor(Color.BLACK);
+        bg.drawRect(0, 0,200, 902);
+
+        g.drawImage(buffer, 0, 0, null);
+    }
+
+
+    @Override
+    public void run()
+    {
+        long startTime = System.nanoTime();
+        long updatesDone = 0;
+
+        while(true)
+        {
+            long updatesNeeded = (long)(((System.nanoTime()-startTime)/1000000)/timeBetweenUpdates);
+            boolean shouldRepaint = false;
+
+            for(;updatesDone<updatesNeeded;updatesDone++)
+            {
+                update();
+                shouldRepaint = true;
+            }
+            if(shouldRepaint)
+                repaint();
+
+            try
+            {
+                Thread.sleep((long)timeBetweenUpdates);
+            }
+            catch(Exception e)
+            {}
+        }
+    }
+
+    public void update()
+    {
+
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e)
+    {
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
+            System.exit(0);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e)
+    {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e)
+    {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+}
