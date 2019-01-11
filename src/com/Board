@@ -1,7 +1,8 @@
-
 package com.company;
+import javax.swing.*;
+import java.awt.*;
 
-public class Board
+public class Board extends JFrame
 {
     public static final int X_SIZE = 8, Y_SIZE = 7, Z_SIZE = 8;
     public static final char TIE = 'T', RED = 'R', BLUE = 'B', EMPTY = '-', PLAYING = '-';
@@ -54,16 +55,14 @@ public class Board
         for(int y=6; y >=0; y--)
         {
             if(board[m.getCol()][y][m.getRow()] == EMPTY)
-            return true;
+                return true;
         }
-
         return false;
     }
 
     public boolean isFull(Move m)
     {
         if(board[m.getRow()][0][m.getCol()] != EMPTY){return true;}
-
         return false;
     }
 
@@ -79,5 +78,22 @@ public class Board
         }
     }
 
-    //public void draw(Graphics g){}
+    /*public void draw(Graphics g)
+    {
+        setSize(200, 902);
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, getWidth(), getHeight());
+
+        g.setColor(Color.WHITE);
+        for(int a = 0; a < 7; a++)
+        {
+            int b = (a*120) + 62; 
+            for(int c = 0; c < 8; c++)
+            {
+                
+                g.drawLine(60+(15*c), 62, 120, 0); // Implemet equations later
+            }
+        }
+        
+    }*/
 }
