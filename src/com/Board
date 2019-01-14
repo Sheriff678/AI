@@ -78,22 +78,45 @@ public class Board extends JFrame
         }
     }
 
-    /*public void draw(Graphics g)
+    public void draw(Graphics g)
     {
-        setSize(200, 902);
+        setSize(200, 900);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         g.setColor(Color.WHITE);
-        for(int a = 0; a < 7; a++)
+        for(int a = 0; a < 7; a++) // a = board no.
         {
-            int b = (a*120) + 62; 
-            for(int c = 0; c < 8; c++)
+            int b = (a*124) + 32; // b = board's y location
+            for(int c = 0; c < 8; c++) // c = line no.
             {
-                
-                g.drawLine(60+(15*c), 62, 120, 0); // Implemet equations later
+                g.drawLine(10+(15*c), (b+120)-(15*c), 70+(15*c), (b+120)-(15*c));
+                g.drawLine(70+(15*c), b, 10+(15*c), b+120);
             }
         }
         
-    }*/
+        for(int z = 0; z < Z_SIZE; z++)
+        {
+            for(int y = 0; y < Y_SIZE; y++)
+            {
+                int a = (y*124) + 32;
+                for(int x = 0; x < X_SIZE; x++)
+                {
+                    int b = (a + (z*15)) + 3; 
+                    int c = (15*x) + 5;
+                    if(board[z][y][x] = RED)
+                    {
+                        g.setColor(Color.RED);
+                        g.fillOval(c, b, 8, 8);
+                    }
+                    else if(board[z][y][x] = BLUE)
+                    {
+                        g.setColor(Color.BLUE);
+                        g.fillOval(c, b, 8, 8);
+                    }
+                }
+            }
+        }
+        
+    }
 }
