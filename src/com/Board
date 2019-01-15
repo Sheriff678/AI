@@ -94,7 +94,7 @@ public class Board extends JFrame
                 g.drawLine(70+(15*c), b, 10+(15*c), b+120);
             }
         }
-        
+
         for(int z = 0; z < Z_SIZE; z++)
         {
             for(int y = 0; y < Y_SIZE; y++)
@@ -102,15 +102,15 @@ public class Board extends JFrame
                 int a = (y*124) + 32;
                 for(int x = 0; x < X_SIZE; x++)
                 {
-                    int b = (a + (z*15)) + 3); 
-                    int c = 70 - (7.5*x); 
-                    int d = c + (15*x) + 5; 
-                    if(board[z][y][x] = RED) 
-                    { 
+                    int b = (a + (z*15)) + 3;
+                    double c = 70 - (7.5*x);
+                    int d = (int)c + (15*x) + 5;
+                    if(board[z][y][x] == RED)
+                    {
                         g.setColor(Color.RED);
                         g.fillOval(d, b, 8, 8);
-                    } 
-                    else if(board[z][y][x] = BLUE)
+                    }
+                    else if(board[z][y][x] == BLUE)
                     {
                         g.setColor(Color.BLUE);
                         g.fillOval(d, b, 8, 8);
@@ -118,6 +118,6 @@ public class Board extends JFrame
                 }
             }
         }
-        
+
     }
 }
