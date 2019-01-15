@@ -103,13 +103,13 @@ public class Board extends JFrame
                 for(int x = 0; x < X_SIZE; x++)
                 {
                     int b = (a + (z*15)) + 3); 
-                    int c = 60 - (7.5*x);
-                    int d = c + (15*x) + 5;
-                    if(board[z][y][x] = RED)
-                    {
+                    int c = 70 - (7.5*x); 
+                    int d = c + (15*x) + 5; 
+                    if(board[z][y][x] = RED) 
+                    { 
                         g.setColor(Color.RED);
                         g.fillOval(d, b, 8, 8);
-                    }
+                    } 
                     else if(board[z][y][x] = BLUE)
                     {
                         g.setColor(Color.BLUE);
