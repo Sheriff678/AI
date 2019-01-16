@@ -118,6 +118,89 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             {}
         }
     }
+    
+    public void win()
+    {
+        char[][][] grid = b.getBoard();
+        
+        //----------Horizontal-LEFT-RIGHT---------//
+        for(int z=0; z<Board.Z_SIZE; z++)
+        {
+            
+            for(int y=0; y<Board.Y_SIZE; y++)
+            {
+                int countRed = 0;
+                int countBlue = 0;
+                
+                for(int x=0; x<Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED)
+                        countRed++;
+                    
+                    else if(grid[z][y][x] == Board.BLUE)
+                        countBlue++;
+                }
+                
+                if(countBlue == 5)
+                    b.setWinner(Board.BLUE);
+                
+                else if(countRed == 5)
+                    b.setWinner(Board.RED);
+            }
+        }
+
+        //----------Horizontal-UP-DOWN---------//
+        for(int z=0; z<Board.Z_SIZE; z++)
+        {
+            int countRed = 0;
+            int countBlue = 0;
+
+            for(int y=0; y<Board.Y_SIZE; y++)
+            {
+                for(int x=0; x<Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED)
+                        countRed++;
+
+                    else if(grid[z][y][x] == Board.BLUE)
+                        countBlue++;
+                }
+            }
+
+            if(countBlue == 5)
+                b.setWinner(Board.BLUE);
+
+            else if(countRed == 5)
+                b.setWinner(Board.RED);
+        }
+
+        //----------Vertical---------//
+        for(int z=0; z<Board.Z_SIZE; z++)
+        {
+
+            for(int y=0; y<Board.Y_SIZE; y++)
+            {
+                int countRed = 0;
+                int countBlue = 0;
+                
+                for(int x=0; x<Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED)
+                        countRed++;
+
+                    else if(grid[z][y][x] == Board.BLUE)
+                        countBlue++;
+                }
+
+                if(countBlue == 5)
+                    b.setWinner(Board.BLUE);
+
+                else if(countRed == 5)
+                    b.setWinner(Board.RED);
+            }
+            
+        }
+    }
 
     public void update()
     {
