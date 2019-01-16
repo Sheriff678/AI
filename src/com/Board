@@ -80,18 +80,18 @@ public class Board extends JFrame
 
     public void draw(Graphics g)
     {
-        setSize(200, 900);
+        setSize(200, 950);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         g.setColor(Color.WHITE);
         for(int a = 0; a < 7; a++) // a = board no.
         {
-            int b = (a*124) + 32; // b = board's y location
+            int b = (a*132) + 30; // b = board's y location
             for(int c = 0; c < 8; c++) // c = line no.
             {
-                g.drawLine(10+(15*c), (b+120)-(15*c), 70+(15*c), (b+120)-(15*c));
-                g.drawLine(70+(15*c), b, 10+(15*c), b+120);
+                g.drawLine(4+(8*c), (b+128)-(16*c), 68+(8*c), (b+128)-(16*c));
+                g.drawLine(64+(16*c), b, 4+(16*c), b+128);
             }
         }
 
@@ -99,12 +99,12 @@ public class Board extends JFrame
         {
             for(int y = 0; y < Y_SIZE; y++)
             {
-                int a = (y*124) + 32;
+                int a = (y*132) + 30;
                 for(int x = 0; x < X_SIZE; x++)
                 {
-                    int b = (a + (z*15)) + 3;
-                    double c = 70 - (7.5*x);
-                    int d = (int)c + (15*x) + 5;
+                    int b = (a + (z*16)) + 4;
+                    int c = 68 - (8*x);
+                    int d = c + (16*x) + 6;
                     if(board[z][y][x] == RED)
                     {
                         g.setColor(Color.RED);
