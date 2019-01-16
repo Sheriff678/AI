@@ -1,4 +1,4 @@
-package com;
+package com.company;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,29 +14,27 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.ArrayList;
 
-public class GameFrame extends JFrame implements Runnable, KeyListener, MouseListener
+public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseListener
 {
 
     public static final int UPS = 60;
 
     private BufferedImage buffer;
     private double timeBetweenUpdates = 1000.0/UPS;
-
     private Board b;
     private HumanPlayer hp;
     private RandomComputer rc;
     private Move move;
     private Location l;
+    private int qwerty = (int)(Math.random()*2)+1;
 
     public GameFrame()
     {
         super();
-
         Scanner input = new Scanner(System.in);
-
         addKeyListener(this);
-        addMouseListener(this);
-        setSize(200, 950);
+        //addMouseListener(this);
+        setSize(212, 962);
         setUndecorated(false);
 
         buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
@@ -47,15 +45,14 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
         String name = input.next();
         System.out.print("\n");
 
-        int color = (int)(Math.random()*1);
+        int color = (int)(Math.random()*2)+1;
 
         if(color == 1)
         {
             hp = new HumanPlayer(name, b.RED);
             rc = new RandomComputer("Bot", b.BLUE);
         }
-
-        else
+        else if(color == 2)
         {
             hp = new HumanPlayer(name, b.BLUE);
             rc = new RandomComputer("Bot", b.RED);
@@ -77,7 +74,6 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
         } catch (InterruptedException e) { }
 
-
         setVisible(true);
 
         Thread t = new Thread(this);
@@ -87,10 +83,10 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
     public void paint(Graphics g)
     {
-
         Graphics bg = buffer.getGraphics();
-        b.draw(g);
-
+        bg.setColor(Color.BLACK);
+        bg.drawRect(0, 0,getWidth(), getHeight());
+        b.draw(bg);
         g.drawImage(buffer, 0, 0, null);
     }
 
@@ -125,20 +121,29 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
     public void update()
     {
-
+        if(qwerty == 1)
+        {
+            b.makeMove(hp.getMove(b), hp.getLetter());
+            qwerty = 2;
+        }
+        else if(qwerty == 2)
+        {
+            b.makeMove(rc.getMove(b), rc.getLetter());
+            qwerty = 1;
+        }
     }
 
     @Override
     public void keyTyped(KeyEvent e)
     {
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
-            System.exit(0);
+
     }
 
     @Override
     public void keyPressed(KeyEvent e)
     {
-
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
+            System.exit(0);
     }
 
     @Override
@@ -147,6 +152,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
     }
 
+    /*
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -170,6 +176,5 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
     @Override
     public void mouseExited(MouseEvent e) {
 
-    }
+    }*/
 }
-
