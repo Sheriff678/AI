@@ -80,18 +80,18 @@ public class Board extends JFrame
 
     public void draw(Graphics g)
     {
-        setSize(200, 950);
+        setSize(212, 962);
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         g.setColor(Color.WHITE);
         for(int a = 0; a < 7; a++) // a = board no.
         {
-            int b = (a*132) + 30; // b = board's y location
-            for(int c = 0; c < 8; c++) // c = line no.
+            int b = (a*132) + 32; // b = board's y location
+            for(int c = 0; c < 9; c++) // c = line no.
             {
-                g.drawLine(4+(8*c), (b+128)-(16*c), 68+(8*c), (b+128)-(16*c));
-                g.drawLine(64+(16*c), b, 4+(16*c), b+128);
+                g.drawLine(10+(8*c), (b+128)-(16*c), 138+(8*c), (b+128)-(16*c));
+                g.drawLine(74+(16*c), b, 10+(16*c), b+128);
             }
         }
 
@@ -118,6 +118,5 @@ public class Board extends JFrame
                 }
             }
         }
-
     }
 }
