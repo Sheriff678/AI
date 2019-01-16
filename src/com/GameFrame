@@ -36,7 +36,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
         addKeyListener(this);
         addMouseListener(this);
-        setSize(200, 902);
+        setSize(200, 950);
         setUndecorated(false);
 
         buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
@@ -68,11 +68,11 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
         {
             Thread.sleep(1000);
             System.out.print("INITIALIZING");
-            Thread.sleep(1000);
+            Thread.sleep(500);
             System.out.print(" . ");
-            Thread.sleep(1000);
+            Thread.sleep(500);
             System.out.print(" . ");
-            Thread.sleep(1000);
+            Thread.sleep(500);
             System.out.print(" . ");
 
         } catch (InterruptedException e) { }
@@ -87,9 +87,9 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
     public void paint(Graphics g)
     {
+
         Graphics bg = buffer.getGraphics();
-        bg.setColor(Color.BLACK);
-        bg.drawRect(0, 0,200, 902);
+        b.draw(g);
 
         g.drawImage(buffer, 0, 0, null);
     }
@@ -172,3 +172,4 @@ public class GameFrame extends JFrame implements Runnable, KeyListener, MouseLis
 
     }
 }
+
