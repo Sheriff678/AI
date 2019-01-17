@@ -110,6 +110,143 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             {}
         }
     }
+    
+     public void win()
+    {
+        char[][][] grid = b.getBoard();
+
+
+        //----------Horizontal-LEFT-RIGHT---------//
+        for(int z=0; z<Board.Z_SIZE; z++)
+        {
+
+            for(int y=0; y<Board.Y_SIZE; y++)
+            {
+                int countRed = 0;
+                int countBlue = 0;
+
+                for(int x=0; x<Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED)
+                        countRed++;
+
+                    else if(grid[z][y][x] == Board.BLUE)
+                        countBlue++;
+                }
+
+                if(countBlue == 5)
+                {
+                    b.setWinner(Board.BLUE);
+                    break;
+                }
+
+                else if(countRed == 5)
+                {
+                    b.setWinner(Board.RED);
+                    break;
+                }
+            }
+        }
+
+        //----------Vertical---------//
+        for(int z=0; z<Board.Z_SIZE; z++)
+        {
+            int countRed = 0;
+            int countBlue = 0;
+
+            for(int x=0; x<Board.X_SIZE; x++)
+            {
+
+
+                for(int y=0; y<Board.Y_SIZE; y++)
+                {
+                    if(grid[z][x][y] == Board.RED)
+                        countRed++;
+
+                    else if(grid[z][x][y] == Board.BLUE)
+                        countBlue++;
+                }
+
+                if(countBlue == 5)
+                {
+                    b.setWinner(Board.BLUE);
+                    break;
+                }
+
+                else if(countRed == 5)
+                {
+                    b.setWinner(Board.RED);
+                    break;
+                }
+            }
+        }
+
+        //----------Horizontal-UP-DOWN---------//
+        int countRed = 0;
+        int countBlue = 0;
+
+        for(int y=0; y<Board.Y_SIZE; y++)
+        {
+            for(int x=0; x<Board.X_SIZE; x++)
+            {
+                for(int z=0; z<Board.Z_SIZE; z++)
+                {
+                    if(grid[x][y][z] == Board.RED)
+                        countRed++;
+
+                    else if(grid[x][y][z] == Board.BLUE)
+                        countBlue++;
+                }
+
+                if(countBlue == 5)
+                {
+                    b.setWinner(Board.BLUE);
+                    break;
+                }
+
+                else if(countRed == 5)
+                {
+                    b.setWinner(Board.RED);
+                    break;
+                }
+            }
+        }
+
+        //----------DIAGONAL---------//
+        countRed = 0;
+        countBlue = 0;
+
+        for(int y=0; y<Board.Y_SIZE; y++)
+        {
+            for(int x=0; x<Board.X_SIZE; x++)
+            {
+                for(int z=0; z<Board.Z_SIZE; z++)
+                {
+                    if(grid[x][y][z] == Board.RED)
+                    {
+                        countRed++;
+                    }
+
+                    else if(grid[x][y][z] == Board.BLUE)
+                    {
+                        countBlue++;
+                    }
+                }
+
+                if(countBlue == 5)
+                {
+                    b.setWinner(Board.BLUE);
+                    break;
+                }
+
+                else if(countRed == 5)
+                {
+                    b.setWinner(Board.RED);
+                    break;
+                }
+            }
+        }
+    }
 
     public void update()
     {
