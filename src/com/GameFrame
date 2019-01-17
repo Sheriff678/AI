@@ -98,25 +98,13 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
     @Override
     public void run()
     {
-        long startTime = System.nanoTime();
-        long updatesDone = 0;
-
         while(true)
         {
-            long updatesNeeded = (long)(((System.nanoTime()-startTime)/1000000)/timeBetweenUpdates);
-            boolean shouldRepaint = false;
-
-            for(;updatesDone<updatesNeeded;updatesDone++)
-            {
-                update();
-                shouldRepaint = true;
-            }
-            if(shouldRepaint)
-                repaint();
-
+            repaint();
+            update();
             try
             {
-                Thread.sleep((long)timeBetweenUpdates);
+                Thread.sleep(500);
             }
             catch(Exception e)
             {}
