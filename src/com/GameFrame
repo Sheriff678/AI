@@ -245,19 +245,17 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                             countBlue++;
                         }
                     }
-                }
-
-                if(countBlue == 5)
-                {
-                    b.setWinner(Board.BLUE);
-                    break;
-                }
-
-                else if(countRed == 5)
-                {
-                    b.setWinner(Board.RED);
-                    break;
-                }
+                }             
+            }
+            if(countBlue == 5)
+            {
+                b.setWinner(Board.BLUE);
+                break;
+            }
+            else if(countRed == 5)
+            {
+                b.setWinner(Board.RED);
+                break;
             }
         }
     }
