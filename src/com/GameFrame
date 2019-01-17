@@ -222,14 +222,28 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             {
                 for(int z=0; z<Board.Z_SIZE; z++)
                 {
-                    if(grid[x][y][z] == Board.RED)
+                    if(x+1 < 8 && z+1 < 8)
                     {
-                        countRed++;
+                        if(grid[x+1][y][z+1] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x+1][y][z+1] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
                     }
 
-                    else if(grid[x][y][z] == Board.BLUE)
+                    if(x-1 >= 0 && z-1 >= 0)
                     {
-                        countBlue++;
+                        if(grid[x-1][y][z-1] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x-1][y][z-1] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
                     }
                 }
 
