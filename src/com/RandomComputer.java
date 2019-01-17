@@ -1,6 +1,5 @@
-package com;
-
-
+package com.company;
+// Andrew Chen's Copy
 public class RandomComputer extends Player
 {
     public RandomComputer(String name, char letter)
@@ -10,6 +9,29 @@ public class RandomComputer extends Player
 
     @Override
     public Move getMove(Board board)
+    {
+        boolean valid;
+        Move move;
+        do
+        {
+            int row = (int)(Math.random()*8);
+            int col = (int)(Math.random()*8);
+
+            System.out.print("\nEnter row: "+row);
+            System.out.print("\nEnter column: "+col);
+            System.out.print("\n");
+
+            move = new Move(row, col);
+            if(!board.isFull(move))
+                valid = true;
+            else
+                valid = false;
+
+        }while(!valid);
+        return move;
+    }
+
+    public Move firstMove(Board board)
     {
         boolean valid;
         Move move;
