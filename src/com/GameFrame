@@ -127,10 +127,10 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
 
                 for(int x=0; x<Board.X_SIZE; x++)
                 {
-                    if(grid[z][y][x] == Board.RED)
+                    if(grid[z][y][x] == Board.RED && (grid[z][y][x+1] == Board.RED || grid[z][y][x+1] == Board.RED))
                         countRed++;
 
-                    else if(grid[z][y][x] == Board.BLUE)
+                    else if(grid[z][y][x] == Board.BLUE && (grid[z][y][x+1] == Board.BLUE || grid[z][y][x+1] == Board.BLUE))
                         countBlue++;
                 }
 
@@ -160,10 +160,10 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
 
                 for(int y=0; y<Board.Y_SIZE; y++)
                 {
-                    if(grid[z][x][y] == Board.RED)
+                    if(grid[z][y][x] == Board.RED && (grid[z][y-1][x] == Board.RED || grid[z][y+1][x] == Board.RED))
                         countRed++;
 
-                    else if(grid[z][x][y] == Board.BLUE)
+                    else if(grid[z][y][x] == Board.BLUE && (grid[z][y-1][x] == Board.BLUE || grid[z][y+1][x] == Board.BLUE))
                         countBlue++;
                 }
 
@@ -191,10 +191,10 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             {
                 for(int z=0; z<Board.Z_SIZE; z++)
                 {
-                    if(grid[x][y][z] == Board.RED)
+                    if(grid[x][y][z] == Board.RED && (grid[x][y][z-1] == Board.RED || grid[x][y][z+1] == Board.RED))
                         countRed++;
 
-                    else if(grid[x][y][z] == Board.BLUE)
+                    else if(grid[x][y][z] == Board.BLUE && (grid[x][y][z-1] == Board.BLUE || grid[x][y][z+1] == Board.BLUE))
                         countBlue++;
                 }
 
