@@ -22,10 +22,8 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
     private BufferedImage buffer;
     private double timeBetweenUpdates = 1000.0/UPS;
     private Board b;
-    private HumanPlayer hp;
+    private HumanPlayer hp1, hp2;
     private RandomComputer rc;
-    private Move move;
-    private Location l;
     private int qwerty = (int)(Math.random()*2)+1;
 
     public GameFrame()
@@ -41,25 +39,32 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         b = new Board();
 
         //-----------------------GAME-START--------------------------//
-        System.out.print("Enter name: ");
-        String name = input.next();
+        System.out.print("Enter name player 1: ");
+        String name1 = input.next();
+        System.out.print("\n");
+
+        System.out.print("Enter name player 2: ");
+        String name2 = input.next();
         System.out.print("\n");
 
         int color = (int)(Math.random()*2)+1;
 
         if(color == 1)
         {
-            hp = new HumanPlayer(name, b.RED);
-            rc = new RandomComputer("Bot", b.BLUE);
+            hp1 = new HumanPlayer(name1, b.RED);
+            hp2 = new HumanPlayer(name2, b.BLUE);
+            //rc = new RandomComputer("Bot", b.BLUE);
         }
         else if(color == 2)
         {
-            hp = new HumanPlayer(name, b.BLUE);
-            rc = new RandomComputer("Bot", b.RED);
+            hp1 = new HumanPlayer(name1, b.BLUE);
+            hp2 = new HumanPlayer(name2, b.RED);
+            //rc = new RandomComputer("Bot", b.RED);
         }
 
         System.out.println("<---COLORS---> \nBlue-B\tRed-R\n");
-        System.out.println("Player Name: " + hp.getName() + "\nPlayer Color: " + hp.getLetter() + "\n");
+        System.out.println("Player 1: " + hp1.getName() + "\nPlayer Color: " + hp1.getLetter() + "\n");
+        System.out.println("Player 2: " + hp2.getName() + "\nPlayer Color: " + hp2.getLetter() + "\n");
 
         try
         {
@@ -70,7 +75,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             Thread.sleep(500);
             System.out.print(" . ");
             Thread.sleep(500);
-            System.out.print(" . ");
+            System.out.print(" . \n\n");
 
         } catch (InterruptedException e) { }
 
@@ -80,16 +85,12 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         t.start();
     }
 
-
     public void paint(Graphics g)
     {
         Graphics bg = buffer.getGraphics();
-        bg.setColor(Color.BLACK);
-        bg.drawRect(0, 0,getWidth(), getHeight());
         b.draw(bg);
         g.drawImage(buffer, 0, 0, null);
     }
-
 
     @Override
     public void run()
@@ -118,100 +119,21 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             {}
         }
     }
-    
-    public void win()
-    {
-        char[][][] grid = b.getBoard();
-        
-        //----------Horizontal-LEFT-RIGHT---------//
-        for(int z=0; z<Board.Z_SIZE; z++)
-        {
-            
-            for(int y=0; y<Board.Y_SIZE; y++)
-            {
-                int countRed = 0;
-                int countBlue = 0;
-                
-                for(int x=0; x<Board.X_SIZE; x++)
-                {
-                    if(grid[z][y][x] == Board.RED)
-                        countRed++;
-                    
-                    else if(grid[z][y][x] == Board.BLUE)
-                        countBlue++;
-                }
-                
-                if(countBlue == 5)
-                    b.setWinner(Board.BLUE);
-                
-                else if(countRed == 5)
-                    b.setWinner(Board.RED);
-            }
-        }
-
-        //----------Horizontal-UP-DOWN---------//
-        for(int z=0; z<Board.Z_SIZE; z++)
-        {
-            int countRed = 0;
-            int countBlue = 0;
-
-            for(int y=0; y<Board.Y_SIZE; y++)
-            {
-                for(int x=0; x<Board.X_SIZE; x++)
-                {
-                    if(grid[z][y][x] == Board.RED)
-                        countRed++;
-
-                    else if(grid[z][y][x] == Board.BLUE)
-                        countBlue++;
-                }
-            }
-
-            if(countBlue == 5)
-                b.setWinner(Board.BLUE);
-
-            else if(countRed == 5)
-                b.setWinner(Board.RED);
-        }
-
-        //----------Vertical---------//
-        for(int z=0; z<Board.Z_SIZE; z++)
-        {
-
-            for(int y=0; y<Board.Y_SIZE; y++)
-            {
-                int countRed = 0;
-                int countBlue = 0;
-                
-                for(int x=0; x<Board.X_SIZE; x++)
-                {
-                    if(grid[z][y][x] == Board.RED)
-                        countRed++;
-
-                    else if(grid[z][y][x] == Board.BLUE)
-                        countBlue++;
-                }
-
-                if(countBlue == 5)
-                    b.setWinner(Board.BLUE);
-
-                else if(countRed == 5)
-                    b.setWinner(Board.RED);
-            }
-            
-        }
-    }
 
     public void update()
     {
         if(qwerty == 1)
         {
-            b.makeMove(hp.getMove(b), hp.getLetter());
+            System.out.println("\n"+hp1.getName()+"'s turn");
+            b.makeMove(hp1.getMove(b), hp1.getLetter());
             qwerty = 2;
         }
         else if(qwerty == 2)
         {
-            b.makeMove(rc.getMove(b), rc.getLetter());
+            //System.out.println("\n"+rc.getName()+"'s turn");
+            //b.makeMove(rc.getMove(b), rc.getLetter());
+            System.out.println("\n"+hp2.getName()+"'s turn");
+            b.makeMove(hp2.getMove(b), hp2.getLetter());
             qwerty = 1;
         }
     }
@@ -227,6 +149,20 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
     {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
             System.exit(0);
+
+        if(e.getKeyCode() == KeyEvent.VK_P)
+            for(int y = 0; y < 7; y++)
+            {
+                for(int z = 0; z < 8; z++)
+                {
+                    for(int x = 0; x < 8; x++)
+                    {
+                        System.out.print("["+b.getBoard()[z][y][x]+"]");
+                    }
+                    System.out.print("\n");
+                }
+                System.out.println("------------------------");
+            }
     }
 
     @Override
