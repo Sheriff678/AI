@@ -43,9 +43,11 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         String name1 = input.next();
         System.out.print("\n");
 
+        ///*
         System.out.print("Enter name player 2: ");
         String name2 = input.next();
         System.out.print("\n");
+        //*/
 
         int color = (int)(Math.random()*2)+1;
 
@@ -65,6 +67,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         System.out.println("<---COLORS---> \nBlue-B\tRed-R\n");
         System.out.println("Player 1: " + hp1.getName() + "\nPlayer Color: " + hp1.getLetter() + "\n");
         System.out.println("Player 2: " + hp2.getName() + "\nPlayer Color: " + hp2.getLetter() + "\n");
+        //System.out.println("Player 2: " + rc.getName() + "\nPlayer Color: " + rc.getLetter() + "\n");
 
         try
         {
