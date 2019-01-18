@@ -1,4 +1,4 @@
-package com.company;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +33,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         addKeyListener(this);
         //addMouseListener(this);
         setSize(212, 962);
-        setUndecorated(false);
+        setUndecorated(true);
 
         buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         b = new Board();
@@ -71,7 +71,6 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
 
         try
         {
-            Thread.sleep(1000);
             System.out.print("INITIALIZING");
             Thread.sleep(500);
             System.out.print(" . ");
@@ -110,279 +109,284 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             {}
         }
     }
-    
-     public void win()
+
+    public void win()
     {
         char[][][] grid = b.getBoard();
 
 
         //----------Horizontal-LEFT-RIGHT---------//
-        for(int z=0; z<Board.Z_SIZE; z++)
+        for(char[][] z: grid)
         {
-
-            for(int y=0; y<Board.Y_SIZE; y++)
+            for(char[] row: z)
             {
-                int countRed = 0;
-                int countBlue = 0;
-
-                for(int x=0; x<Board.X_SIZE; x++)
+                for(int c=0; c+4 < row.length; c++)
                 {
-                    if(grid[z][y][x] == Board.RED && (grid[z][y][x+1] == Board.RED || grid[z][y][x+1] == Board.RED))
-                        countRed++;
+                    if(row[c] == Board.RED && row[c+1] == Board.RED && row[c+2] == Board.RED &&
+                        row[c+3] == Board.RED && row[c+4] == Board.RED)
+                        b.setWinner(Board.RED);
 
-                    else if(grid[z][y][x] == Board.BLUE && (grid[z][y][x+1] == Board.BLUE || grid[z][y][x+1] == Board.BLUE))
-                        countBlue++;
-                }
-
-                if(countBlue == 5)
-                {
-                    b.setWinner(Board.BLUE);
-                    break;
-                }
-
-                else if(countRed == 5)
-                {
-                    b.setWinner(Board.RED);
-                    break;
+                    else if(row[c] == Board.BLUE && row[c+1] == Board.BLUE && row[c+2] == Board.BLUE &&
+                            row[c+3] == Board.BLUE && row[c+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
                 }
             }
         }
 
         //----------Vertical---------//
-        for(int z=0; z<Board.Z_SIZE; z++)
+        for(int z=0; z+4 < Board.Z_SIZE; z++)
         {
-            int countRed = 0;
-            int countBlue = 0;
-
-            for(int x=0; x<Board.X_SIZE; x++)
+            for(int y=0; y < Board.Y_SIZE; y++)
             {
-                for(int y=0; y<Board.Y_SIZE; y++)
+                for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(grid[z][y][x] == Board.RED && (grid[z][y-1][x] == Board.RED || grid[z][y+1][x] == Board.RED))
-                        countRed++;
+                    if(grid[z][y][x] == Board.RED && grid[z+1][y][x] == Board.RED && grid[z+2][y][x] == Board.RED &&
+                        grid[z+3][y][x] == Board.RED && grid[z+4][y][x] == Board.RED)
+                        b.setWinner(Board.RED);
 
-                    else if(grid[z][y][x] == Board.BLUE && (grid[z][y-1][x] == Board.BLUE || grid[z][y+1][x] == Board.BLUE))
-                        countBlue++;
-                }
-
-                if(countBlue == 5)
-                {
-                    b.setWinner(Board.BLUE);
-                    break;
-                }
-
-                else if(countRed == 5)
-                {
-                    b.setWinner(Board.RED);
-                    break;
+                    else if(grid[z][y][x] == Board.BLUE && grid[z+1][y][x] == Board.BLUE && grid[z+2][y][x] == Board.BLUE &&
+                            grid[z+3][y][x] == Board.BLUE && grid[z+4][y][x] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
                 }
             }
         }
 
         //----------Horizontal-UP-DOWN---------//
-        int countRed = 0;
-        int countBlue = 0;
-
-        for(int y=0; y<Board.Y_SIZE; y++)
+        for(char[][] z: grid)
         {
-            for(int x=0; x<Board.X_SIZE; x++)
+            for(int y=0; y+4 < Board.Y_SIZE; y++)
             {
-                for(int z=0; z<Board.Z_SIZE; z++)
+                for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(grid[x][y][z] == Board.RED && (grid[x][y][z-1] == Board.RED || grid[x][y][z+1] == Board.RED))
-                        countRed++;
+                    if(z[y][x] == Board.RED && z[y+1][x] == Board.RED && z[y+2][x] == Board.RED &&
+                            z[y+3][x] == Board.RED && z[y+4][x] == Board.RED)
+                        b.setWinner(Board.RED);
 
-                    else if(grid[x][y][z] == Board.BLUE && (grid[x][y][z-1] == Board.BLUE || grid[x][y][z+1] == Board.BLUE))
-                        countBlue++;
-                }
-
-                if(countBlue == 5)
-                {
-                    b.setWinner(Board.BLUE);
-                    break;
-                }
-
-                else if(countRed == 5)
-                {
-                    b.setWinner(Board.RED);
-                    break;
+                    else if(z[y][x] == Board.BLUE && z[y+1][x] == Board.BLUE && z[y+2][x] == Board.BLUE &&
+                            z[y+3][x] == Board.BLUE && z[y+4][x] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
                 }
             }
         }
 
-        //----------DIAGONAL---------//
-        countRed = 0;
-        countBlue = 0;
-
-        for(int y=0; y<Board.Y_SIZE; y++)
+        //---------Diagonal-UP-DOWN-------//
+        for(int z=0; z+4 < Board.Z_SIZE; z++)
         {
-            for(int x=0; x<Board.X_SIZE; x++)
+            for(int y=0; y < Board.Y_SIZE; y++)
             {
-                for(int z=0; z<Board.Z_SIZE; z++)
+                for(int x=0; x+4 < Board.X_SIZE; x++)
                 {
-                    if(x+1 < 8 && z+1 < 8)
-                    {
-                        if(grid[x+1][y][z+1] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x+1][y][z+1] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
+                    if(grid[z][y][x] == Board.RED && grid[z+1][y][x+1] == Board.RED && grid[z+2][y][x+2] == Board.RED &&
+                            grid[z+3][y][x+3] == Board.RED && grid[z+4][y][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
 
-                    if(x-1 >= 0 && z-1 >= 0)
-                    {
-                        if(grid[x-1][y][z-1] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x-1][y][z-1] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                }             
-            }
-            if(countBlue == 5)
-            {
-                b.setWinner(Board.BLUE);
-                break;
-            }
-            else if(countRed == 5)
-            {
-                b.setWinner(Board.RED);
-                break;
+                    else if(grid[z][y][x] == Board.BLUE && grid[z+1][y][x+1] == Board.BLUE && grid[z+2][y][x+2] == Board.BLUE &&
+                            grid[z+3][y][x+3] == Board.BLUE && grid[z+4][y][x+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
             }
         }
-        // 3D Straight Diagonal
-        
-        for(int y=0; y<Board.Y_SIZE; y++)
+
+        //---------Diagonal-DOWN-UP-------//
+        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
         {
-            for(int x=0; x<Board.X_SIZE; x++)
+            for(int y=0; y < Board.Y_SIZE; y++)
             {
-                for(int z=0; z<Board.Z_SIZE; z++)
+                for(int x=0; x+4 < Board.X_SIZE; x++)
                 {
-                    if(x+1 < 8 && y+1 < 8)
-                    {
-                        if(grid[x+1][y+1][z] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x+1][y+1][z] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(x+1 < 8 && y-1 >= 0)
-                    {
-                        if(grid[x+1][y-1][z] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x+1][y-1][z] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(x-1 >= 0 && y-1 >= 0)
-                    {
-                        if(grid[x-1][y-1][z] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x-1][y-1][z] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(x-1 >= 0 && y+1 < 8)
-                    {
-                        if(grid[x+1][y+1][z] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x+1][y+1][z] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(z+1 < 8 && y+1 < 8)
-                    {
-                        if(grid[x][y+1][z+1] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x][y+1][z+1] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(z+1 < 8 && y-1 >= 0)
-                    {
-                        if(grid[x][y-1][z+1] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x][y-1][z+1] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(z-1 >= 0 && y-1 >= 0)
-                    {
-                        if(grid[x][y-1][z-1] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x][y-1][z-1] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                    if(z-1 >= 0 && y+1 >= 0)
-                    {
-                        if(grid[x][y+1][z-1] == Board.RED)
-                        {
-                            countRed++;
-                        }
-                        else if(grid[x][y+1][z-1] == Board.BLUE)
-                        {
-                            countBlue++;
-                        }
-                    }
-                }             
-            }
-            if(countBlue == 5)
-            {
-                b.setWinner(Board.BLUE);
-                break;
-            }
-            else if(countRed == 5)
-            {
-                b.setWinner(Board.RED);
-                break;
+                    if(grid[z][y][x] == Board.RED && grid[z-1][y][x+1] == Board.RED && grid[z-2][y][x+2] == Board.RED &&
+                            grid[z-3][y][x+3] == Board.RED && grid[z-4][y][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z-1][y][x+1] == Board.BLUE && grid[z-2][y][x+2] == Board.BLUE &&
+                            grid[z-3][y][x+3] == Board.BLUE && grid[z-4][y][x+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
             }
         }
+
+        //--------V-Diagonal-UP-DOWN-WALL------//
+        for(char[][] z: grid)
+        {
+            for(int y=0; y+4 < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+4 < Board.X_SIZE; x++)
+                {
+                    if(z[y][x] == Board.RED && z[y+1][x+1] == Board.RED && z[y+2][x+2] == Board.RED &&
+                            z[y+3][x+3] == Board.RED && z[y+4][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(z[y][x] == Board.BLUE && z[y+1][x+1] == Board.BLUE && z[y+2][x=2] == Board.BLUE &&
+                            z[y+3][x=3] == Board.BLUE && z[y+4][x=4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
+        //--------V-Diagonal-DOWN-UP-WALL------//
+        for(char[][] z: grid)
+        {
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
+            {
+                for(int x=0; x+4 < Board.X_SIZE; x++)
+                {
+                    if(z[y][x] == Board.RED && z[y-1][x+1] == Board.RED && z[y-2][x+2] == Board.RED &&
+                            z[y-3][x+3] == Board.RED && z[y-4][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(z[y][x] == Board.BLUE && z[y-1][x+1] == Board.BLUE && z[y-2][x=2] == Board.BLUE &&
+                            z[y-3][x=3] == Board.BLUE && z[y-4][x=4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
+        //--------V-Diagonal-DOWN-UP------//
+        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
+        {
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
+            {
+                for(int x=0; x < Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED && grid[z-1][y-1][x] == Board.RED && grid[z-2][y-2][x] == Board.RED &&
+                            grid[z-3][y-3][x] == Board.RED && grid[z-4][y-4][x] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z-1][y-1][x] == Board.BLUE && grid[z-2][y-2][x] == Board.BLUE &&
+                            grid[z-3][y-3][x] == Board.BLUE && grid[z-4][y-4][x] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
+        //--------V-Diagonal--UP-DOWN-----//
+        for(int z=0; z+4 > Board.Z_SIZE; z++)
+        {
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
+            {
+                for(int x=0; x < Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED && grid[z+1][y-1][x] == Board.RED && grid[z+2][y-2][x] == Board.RED &&
+                            grid[z+3][y-3][x] == Board.RED && grid[z+4][y-4][x] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z+1][y-1][x] == Board.BLUE && grid[z+2][y-2][x] == Board.BLUE &&
+                            grid[z+3][y-3][x] == Board.BLUE && grid[z+4][y-4][x] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
+        //--------V-IDK-ANYMORE---------//
+        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
+        {
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
+            {
+                for(int x=0; x+4 < Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED && grid[z-1][y-1][x+1] == Board.RED && grid[z-2][y-2][x+2] == Board.RED &&
+                            grid[z-3][y-3][x+3] == Board.RED && grid[z-4][y-4][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z-1][y-1][x+1] == Board.BLUE && grid[z-2][y-2][x+2] == Board.BLUE &&
+                            grid[z-3][y-3][x+3] == Board.BLUE && grid[z-4][y-4][x+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
+        //--------V-IDK-ANYMORE-2--------//
+        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
+        {
+            for(int y=0; y+4 < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+4 < Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED && grid[z-1][y+1][x+1] == Board.RED && grid[z-2][y+2][x+2] == Board.RED &&
+                            grid[z-3][y+3][x+3] == Board.RED && grid[z-4][y+4][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z-1][y+1][x+1] == Board.BLUE && grid[z-2][y+2][x+2] == Board.BLUE &&
+                            grid[z-3][y+3][x+3] == Board.BLUE && grid[z-4][y+4][x+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
     }
 
     public void update()
     {
-        if(qwerty == 1)
+        if(b.getWinner() == Board.PLAYING)
         {
-            System.out.println("\n"+hp1.getName()+"'s turn");
-            b.makeMove(hp1.getMove(b), hp1.getLetter());
-            qwerty = 2;
+            if(qwerty == 1)
+            {
+                System.out.println("\n" + hp1.getName() + "'s turn");
+                b.makeMove(hp1.getMove(b), hp1.getLetter());
+                qwerty = 2;
+            }
+
+            else if (qwerty == 2)
+            {
+                //System.out.println("\n"+rc.getName()+"'s turn");
+                //b.makeMove(rc.getMove(b), rc.getLetter());
+                System.out.println("\n" + hp2.getName() + "'s turn");
+                b.makeMove(hp2.getMove(b), hp2.getLetter());
+                qwerty = 1;
+            }
+
+            win();
         }
-        else if(qwerty == 2)
+
+        else
         {
-            //System.out.println("\n"+rc.getName()+"'s turn");
-            //b.makeMove(rc.getMove(b), rc.getLetter());
-            System.out.println("\n"+hp2.getName()+"'s turn");
-            b.makeMove(hp2.getMove(b), hp2.getLetter());
-            qwerty = 1;
+            if(b.getWinner() == Board.BLUE)
+            {
+                try
+                {
+                    System.out.println("Congratulations!!!");
+                    Thread.sleep(500);
+                    System.out.println("Blue player has won!\n");
+                    Thread.sleep(500);
+                    System.out.print("Resetting");
+                    Thread.sleep(500);
+                    System.out.print(" . ");
+                    Thread.sleep(500);
+                    System.out.print(" . ");
+                    Thread.sleep(500);
+                    System.out.print(" .");
+
+                    b.reset();
+                    b.setWinner(Board.PLAYING);
+
+                }
+                catch (InterruptedException e) { }
+            }
+
+            else if(b.getWinner() == Board.RED)
+            {
+                try
+                {
+                    System.out.println("Congratulations!!!");
+                    Thread.sleep(500);
+                    System.out.println("Red player has won!\n");
+                    Thread.sleep(500);
+                    System.out.print("Resetting");
+                    Thread.sleep(500);
+                    System.out.print(" . ");
+                    Thread.sleep(500);
+                    System.out.print(" . ");
+                    Thread.sleep(500);
+                    System.out.print(" .");
+
+                    b.reset();
+                    b.setWinner(Board.PLAYING);
+
+                }
+                catch (InterruptedException e) { }
+            }
         }
+
     }
 
     @Override
@@ -396,6 +400,12 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
     {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
             System.exit(0);
+
+        if(e.getKeyCode() == KeyEvent.VK_R)
+        {
+            b.reset();
+            b.setWinner(Board.PLAYING);
+        }
 
         if(e.getKeyCode() == KeyEvent.VK_P)
             for(int y = 0; y < 7; y++)
