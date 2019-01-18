@@ -1,4 +1,4 @@
-
+package com;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +31,8 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         super();
         Scanner input = new Scanner(System.in);
         addKeyListener(this);
-        //addMouseListener(this);
         setSize(212, 962);
-        setUndecorated(true);
+        setUndecorated(false);
 
         buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         b = new Board();
@@ -53,14 +52,14 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
 
         if(color == 1)
         {
-            hp1 = new HumanPlayer(name1, b.RED);
-            hp2 = new HumanPlayer(name2, b.BLUE);
+            hp1 = new HumanPlayer(name1, Board.RED);
+            hp2 = new HumanPlayer(name2, Board.BLUE);
             //rc = new RandomComputer("Bot", b.BLUE);
         }
         else if(color == 2)
         {
-            hp1 = new HumanPlayer(name1, b.BLUE);
-            hp2 = new HumanPlayer(name2, b.RED);
+            hp1 = new HumanPlayer(name1, Board.BLUE);
+            hp2 = new HumanPlayer(name2, Board.RED);
             //rc = new RandomComputer("Bot", b.RED);
         }
 
@@ -123,7 +122,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                 for(int c=0; c+4 < row.length; c++)
                 {
                     if(row[c] == Board.RED && row[c+1] == Board.RED && row[c+2] == Board.RED &&
-                        row[c+3] == Board.RED && row[c+4] == Board.RED)
+                            row[c+3] == Board.RED && row[c+4] == Board.RED)
                         b.setWinner(Board.RED);
 
                     else if(row[c] == Board.BLUE && row[c+1] == Board.BLUE && row[c+2] == Board.BLUE &&
@@ -141,7 +140,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
                     if(grid[z][y][x] == Board.RED && grid[z+1][y][x] == Board.RED && grid[z+2][y][x] == Board.RED &&
-                        grid[z+3][y][x] == Board.RED && grid[z+4][y][x] == Board.RED)
+                            grid[z+3][y][x] == Board.RED && grid[z+4][y][x] == Board.RED)
                         b.setWinner(Board.RED);
 
                     else if(grid[z][y][x] == Board.BLUE && grid[z+1][y][x] == Board.BLUE && grid[z+2][y][x] == Board.BLUE &&
@@ -312,7 +311,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                 }
             }
         }
-        
+
         //--------V-WTF-AM-I-DOING-------//
         for(int z=0; z+4 < Board.Z_SIZE; z++)
         {
