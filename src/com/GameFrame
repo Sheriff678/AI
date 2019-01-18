@@ -314,9 +314,9 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         }
         
         //--------V-WTF-AM-I-DOING-------//
-        for(int z=0; z+4 > 0; z++)
+        for(int z=0; z+4 < Board.Z_SIZE; z++)
         {
-            for(int y=0; y+4 > 0; y++)
+            for(int y=0; y+4 < Board.Y_SIZE; y++)
             {
                 for(int x=0; x+4 < Board.X_SIZE; x++)
                 {
@@ -332,7 +332,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
         }
 
         //--------V-WTF-AM-I-DOING-2-----//
-        for(int z=0; z+4 > 0; z++)
+        for(int z=0; z+4 < Board.Z_SIZE; z++)
         {
             for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
             {
