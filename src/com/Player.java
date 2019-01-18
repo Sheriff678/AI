@@ -1,5 +1,3 @@
-package com;
-
 public abstract class Player
 {
     private String name;
@@ -21,7 +19,7 @@ public abstract class Player
         return name;
     }
 
-    public abstract Move getMove();
+    public abstract Move getMove(Board board);
 
     public abstract Player freshCopy();
 
