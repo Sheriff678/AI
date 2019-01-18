@@ -1,5 +1,3 @@
-package com.company;
-// Andrew Chen's Copy
 public class RandomComputer extends Player
 {
     public RandomComputer(String name, char letter)
