@@ -1,6 +1,5 @@
-package com.company;
+
 import java.util.Scanner;
-// Andrew Chen's Copy
 public class HumanPlayer extends Player
 {
 
@@ -14,7 +13,8 @@ public class HumanPlayer extends Player
     {
         Scanner input = new Scanner(System.in);
         boolean valid;
-        Move move;
+        Move move = null;
+
         do
         {
             System.out.print("\nEnter row: ");
@@ -23,21 +23,27 @@ public class HumanPlayer extends Player
             int col = input.nextInt();
             System.out.print("\n");
 
-            if((row < 0 || row > 8) && (col < 0 || col > 8))
+            if((row < 0 || row > 7) || (col < 0 || col > 7))
             {
-                System.out.println("Invalid move \nTry again."); valid = false; move = null; continue;
+                System.out.println("Invalid move \nTry again.");
+                valid = false;
             }
-
-            move = new Move(row, col);
-
-            if(!board.isFull(move))
-                valid = true;
 
             else
             {
-                valid = false;
-                System.out.println("Invalid move \nTry again.");
+                move = new Move(col, row);
+
+                if(!board.isFull(move))
+                    valid = true;
+
+                else
+                {
+                    valid = false;
+                    System.out.println("Invalid move \nTry again.");
+                }
             }
+
+
 
         }while(!valid);
 
