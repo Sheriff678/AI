@@ -312,6 +312,42 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                 }
             }
         }
+        
+        //--------V-WTF-AM-I-DOING-------//
+        for(int z=0; z+4 > 0; z++)
+        {
+            for(int y=0; y+4 > 0; y++)
+            {
+                for(int x=0; x+4 < Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED && grid[z+1][y+1][x+1] == Board.RED && grid[z+2][y+2][x+2] == Board.RED &&
+                            grid[z+3][y+3][x+3] == Board.RED && grid[z+4][y+4][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z+1][y+1][x+1] == Board.BLUE && grid[z+2][y+2][x+2] == Board.BLUE &&
+                            grid[z+3][y+3][x+3] == Board.BLUE && grid[z+4][y+4][x+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
+
+        //--------V-WTF-AM-I-DOING-2-----//
+        for(int z=0; z+4 > 0; z++)
+        {
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
+            {
+                for(int x=0; x+4 < Board.X_SIZE; x++)
+                {
+                    if(grid[z][y][x] == Board.RED && grid[z+1][y-1][x+1] == Board.RED && grid[z+2][y-2][x+2] == Board.RED &&
+                            grid[z+3][y-3][x+3] == Board.RED && grid[z+4][y-4][x+4] == Board.RED)
+                        b.setWinner(Board.RED);
+
+                    else if(grid[z][y][x] == Board.BLUE && grid[z+1][y-1][x+1] == Board.BLUE && grid[z+2][y-2][x+2] == Board.BLUE &&
+                            grid[z+3][y-3][x+3] == Board.BLUE && grid[z+4][y-4][x+4] == Board.BLUE)
+                        b.setWinner(Board.BLUE);
+                }
+            }
+        }
 
     }
 
