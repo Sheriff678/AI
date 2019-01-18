@@ -156,8 +156,6 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
 
             for(int x=0; x<Board.X_SIZE; x++)
             {
-
-
                 for(int y=0; y<Board.Y_SIZE; y++)
                 {
                     if(grid[z][y][x] == Board.RED && (grid[z][y-1][x] == Board.RED || grid[z][y+1][x] == Board.RED))
@@ -241,6 +239,115 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                             countRed++;
                         }
                         else if(grid[x-1][y][z-1] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                }             
+            }
+            if(countBlue == 5)
+            {
+                b.setWinner(Board.BLUE);
+                break;
+            }
+            else if(countRed == 5)
+            {
+                b.setWinner(Board.RED);
+                break;
+            }
+        }
+        // 3D Straight Diagonal
+        
+        for(int y=0; y<Board.Y_SIZE; y++)
+        {
+            for(int x=0; x<Board.X_SIZE; x++)
+            {
+                for(int z=0; z<Board.Z_SIZE; z++)
+                {
+                    if(x+1 < 8 && y+1 < 8)
+                    {
+                        if(grid[x+1][y+1][z] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x+1][y+1][z] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(x+1 < 8 && y-1 >= 0)
+                    {
+                        if(grid[x+1][y-1][z] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x+1][y-1][z] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(x-1 >= 0 && y-1 >= 0)
+                    {
+                        if(grid[x-1][y-1][z] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x-1][y-1][z] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(x-1 >= 0 && y+1 < 8)
+                    {
+                        if(grid[x+1][y+1][z] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x+1][y+1][z] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(z+1 < 8 && y+1 < 8)
+                    {
+                        if(grid[x][y+1][z+1] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x][y+1][z+1] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(z+1 < 8 && y-1 >= 0)
+                    {
+                        if(grid[x][y-1][z+1] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x][y-1][z+1] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(z-1 >= 0 && y-1 >= 0)
+                    {
+                        if(grid[x][y-1][z-1] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x][y-1][z-1] == Board.BLUE)
+                        {
+                            countBlue++;
+                        }
+                    }
+                    if(z-1 >= 0 && y+1 >= 0)
+                    {
+                        if(grid[x][y+1][z-1] == Board.RED)
+                        {
+                            countRed++;
+                        }
+                        else if(grid[x][y+1][z-1] == Board.BLUE)
                         {
                             countBlue++;
                         }
