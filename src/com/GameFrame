@@ -382,7 +382,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                     System.out.println("Congratulations!!!");
                     Thread.sleep(500);
                     System.out.println("Blue player has won!\n");
-                    Thread.sleep(500);
+                    /*Thread.sleep(500);
                     System.out.print("Resetting");
                     Thread.sleep(500);
                     System.out.print(" . ");
@@ -392,7 +392,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                     System.out.print(" .");
 
                     b.reset();
-                    b.setWinner(Board.PLAYING);
+                    b.setWinner(Board.PLAYING);*/
 
                 }
                 catch (InterruptedException e) { }
@@ -405,7 +405,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                     System.out.println("Congratulations!!!");
                     Thread.sleep(500);
                     System.out.println("Red player has won!\n");
-                    Thread.sleep(500);
+                    /*Thread.sleep(500);
                     System.out.print("Resetting");
                     Thread.sleep(500);
                     System.out.print(" . ");
@@ -415,7 +415,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                     System.out.print(" .");
 
                     b.reset();
-                    b.setWinner(Board.PLAYING);
+                    b.setWinner(Board.PLAYING);*/
 
                 }
                 catch (InterruptedException e) { }
