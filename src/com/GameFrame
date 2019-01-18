@@ -205,7 +205,7 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             }
         }
 
-        //--------V-Diagonal-UP-DOWN-WALL------//
+        //--------V-Diagonal-UP-DOWN-WALL-1----//
         for(char[][] z: grid)
         {
             for(int y=0; y+4 < Board.Y_SIZE; y++)
@@ -216,14 +216,14 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                             z[y+3][x+3] == Board.RED && z[y+4][x+4] == Board.RED)
                         b.setWinner(Board.RED);
 
-                    else if(z[y][x] == Board.BLUE && z[y+1][x+1] == Board.BLUE && z[y+2][x=2] == Board.BLUE &&
-                            z[y+3][x=3] == Board.BLUE && z[y+4][x=4] == Board.BLUE)
+                    else if(z[y][x] == Board.BLUE && z[y+1][x+1] == Board.BLUE && z[y+2][x+2] == Board.BLUE &&
+                            z[y+3][x+3] == Board.BLUE && z[y+4][x+4] == Board.BLUE)
                         b.setWinner(Board.BLUE);
                 }
             }
         }
 
-        //--------V-Diagonal-DOWN-UP-WALL------//
+        //--------V-Diagonal-DOWN-UP-WALL-1----//
         for(char[][] z: grid)
         {
             for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
@@ -234,14 +234,14 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
                             z[y-3][x+3] == Board.RED && z[y-4][x+4] == Board.RED)
                         b.setWinner(Board.RED);
 
-                    else if(z[y][x] == Board.BLUE && z[y-1][x+1] == Board.BLUE && z[y-2][x=2] == Board.BLUE &&
-                            z[y-3][x=3] == Board.BLUE && z[y-4][x=4] == Board.BLUE)
+                    else if(z[y][x] == Board.BLUE && z[y-1][x+1] == Board.BLUE && z[y-2][x+2] == Board.BLUE &&
+                            z[y-3][x+3] == Board.BLUE && z[y-4][x+4] == Board.BLUE)
                         b.setWinner(Board.BLUE);
                 }
             }
         }
 
-        //--------V-Diagonal-DOWN-UP------//
+        //--------V-Diagonal-DOWN-UP-WALL-2----//
         for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
         {
             for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
@@ -259,8 +259,8 @@ public class GameFrame extends JFrame implements Runnable, KeyListener//, MouseL
             }
         }
 
-        //--------V-Diagonal--UP-DOWN-----//
-        for(int z=0; z+4 > Board.Z_SIZE; z++)
+        //--------V-Diagonal--UP-DOWN-WALL-2---//
+        for(int z=0; z+4 < Board.Z_SIZE; z++)
         {
             for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
             {
