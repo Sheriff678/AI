@@ -1,7 +1,28 @@
 public class Syarief_Andrew_AI
 {
-    public Syarief_Andrew_AI() 
+    private Board board;
+    private Move move;
+    private int row;
+    private int col;
+    
+    public Syarief_Andrew_AI()
     {
-        
+        board = new Board();
+    }
+
+    public Move getMove() {
+        return move;
+    }
+    
+    public int BoardGrader(Board duplicate)
+    {
+        //calculates moves
+        //gets best move coordinates (col, row)
+        //sets row and col
+    }
+    
+    public Move FinalizeMove(int col, int row)
+    {
+        //returns best move
     }
 }
