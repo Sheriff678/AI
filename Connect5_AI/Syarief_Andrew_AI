@@ -1,28 +1,51 @@
 public class Syarief_Andrew_AI
 {
+    private char color;
     private Board board;
     private Move move;
     private int row;
     private int col;
     
-    public Syarief_Andrew_AI()
+    public Syarief_Andrew_AI(Board board, char color)
     {
-        board = new Board();
+        board = new Board(); this.color = color;
     }
 
     public Move getMove() {
         return move;
     }
     
-    public int BoardGrader(Board duplicate)
+    public int BoardGrader(Board grid)
     {
-        //calculates moves
-        //gets best move coordinates (col, row)
-        //sets row and col
+        /* -----------Scoring-----------
+         * Blank spaces :              1
+         * Occupied spaces :           0
+         * Potential wins :            4
+         * Potential losses:          -4
+         */
+
+        char opposition = '-';
+        if(color == 'R'){opposition = 'B';}
+        else if(color == 'B'){opposition = 'R';}
+
+        int score = 0;
+        char[][][] b = grid.getBoard();
+
+        for(int y = 0; y < 7; y++){
+            for(int x = 0; x < 8; x++){
+                for(int z = 0; z < 8; z++)
+                {
+                    if(b[x][y][z] == '-'){score++;}
+                }
+            }
+        }
+
+        return score;
     }
     
     public Move FinalizeMove(int col, int row)
     {
         //returns best move
+        return null;
     }
 }
