@@ -25,9 +25,9 @@ public class Syarief_Andrew_AI
          * Potential wins :            4
          * Potential losses:          -4
          */
-        
-        
-        
+
+
+
         char[][][] b = grid.getBoard();
         char opposition = ' ';
         int score = 0;
@@ -41,7 +41,7 @@ public class Syarief_Andrew_AI
         //----------Horizontal-LEFT-RIGHT---------//
         for (char[][] z : b) {
             for (char[] row : z) {
-                for (int c = 0; c + 4 < row.length; c++)
+                for (int x = 0; x + 4 < row.length; x++)
                 {
 
                 }
@@ -191,7 +191,7 @@ public class Syarief_Andrew_AI
                 }
             }
         }
-        
+
         return score;
     }
 
