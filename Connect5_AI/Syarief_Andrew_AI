@@ -5,16 +5,18 @@ public class Syarief_Andrew_AI
     private Move move;
     private int row;
     private int col;
-    
+
     public Syarief_Andrew_AI(Board board, char color)
     {
-        board = new Board(); this.color = color;
+        this.board = board;
+        this.color = color;
     }
 
-    public Move getMove() {
+    public Move getMove()
+    {
         return move;
     }
-    
+
     public int BoardGrader(Board grid)
     {
         /* -----------Scoring-----------
@@ -23,29 +25,179 @@ public class Syarief_Andrew_AI
          * Potential wins :            4
          * Potential losses:          -4
          */
-
-        char opposition = '-';
-        if(color == 'R'){opposition = 'B';}
-        else if(color == 'B'){opposition = 'R';}
-
-        int score = 0;
+        
+        
+        
         char[][][] b = grid.getBoard();
+        char opposition = ' ';
+        int score = 0;
 
-        for(int y = 0; y < 7; y++){
-            for(int x = 0; x < 8; x++){
-                for(int z = 0; z < 8; z++)
+        if (color == 'R')
+            opposition = 'B';
+
+        else if (color == 'B')
+            opposition = 'R';
+
+        //----------Horizontal-LEFT-RIGHT---------//
+        for (char[][] z : b) {
+            for (char[] row : z) {
+                for (int c = 0; c + 4 < row.length; c++)
                 {
-                    if(b[x][y][z] == '-'){score++;}
+
                 }
             }
         }
 
+        //----------Vertical---------//
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
+        {
+            for (int y = 0; y < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //----------Horizontal-UP-DOWN---------//
+        for (char[][] z : b)
+        {
+            for (int y = 0; y + 4 < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //---------Diagonal-UP-DOWN-------//
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
+        {
+            for (int y = 0; y < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //---------Diagonal-DOWN-UP-------//
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--)
+        {
+            for (int y = 0; y < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+
+                {
+
+                }
+            }
+        }
+
+        //--------V-Diagonal-UP-DOWN-WALL-1----//
+        for (char[][] z : b)
+        {
+            for (int y = 0; y + 4 < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-Diagonal-DOWN-UP-WALL-1----//
+        for (char[][] z : b)
+        {
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-Diagonal-DOWN-UP-WALL-2----//
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--)
+        {
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
+            {
+                for (int x = 0; x < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-Diagonal--UP-DOWN-WALL-2---//
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
+        {
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
+            {
+                for (int x = 0; x < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-IDK-ANYMORE---------//
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--) {
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-IDK-ANYMORE-2--------//
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--)
+        {
+            for (int y = 0; y + 4 < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-WTF-AM-I-DOING-------//
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
+        {
+            for (int y = 0; y + 4 < Board.Y_SIZE; y++)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+
+        //--------V-WTF-AM-I-DOING-2-----//
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
+        {
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
+            {
+                for (int x = 0; x + 4 < Board.X_SIZE; x++)
+                {
+
+                }
+            }
+        }
+        
         return score;
     }
-    
-    public Move FinalizeMove(int col, int row)
+
+    /*public Move FinalizeMove(int col, int row)
     {
         //returns best move
-        return null;
-    }
+        ;
+    }*/
 }
