@@ -2,19 +2,15 @@ public class Syarief_Andrew_AI
 {
     private char color;
     private Board board;
-    private Move move;
-    private int row;
-    private int col;
 
     public Syarief_Andrew_AI(Board board, char color)
     {
-        this.board = board;
-        this.color = color;
+        this.board = board; this.color = color;
     }
 
     public Move getMove()
     {
-        return move;
+        return null;
     }
 
     public int BoardGrader(Board grid)
@@ -23,124 +19,110 @@ public class Syarief_Andrew_AI
          * Blank spaces :              1
          * Occupied spaces :           0
          * Potential wins :            4
-         * Potential losses:          -4
+         * Potential losses :         -4
          */
 
-
-
-        char[][][] b = grid.getBoard();
         char opposition = ' ';
+        if(color == 'R'){opposition = 'B';}
+        else if(color == 'B'){opposition = 'R';}
+
         int score = 0;
+        char[][][] b = grid.getBoard();
 
-        if (color == 'R')
-            opposition = 'B';
-
-        else if (color == 'B')
-            opposition = 'R';
+        for(int y = 0; y < 7; y++){
+            for(int x = 0; x < 8; x++){
+                for(int z = 0; z < 8; z++){
+                    if(b[x][y][z] == '-'){score++;}
+                }
+            }
+        }
 
         //----------Horizontal-LEFT-RIGHT---------//
-        for (char[][] z : b) {
-            for (char[] row : z) {
-                for (int x = 0; x + 4 < row.length; x++)
-                {
-
+        for (int y = 0; y < 7; y++){
+            for (int z = 0; z < 8; z++){
+                for (int x = 0; x + 4 < 8; x++){
+                    if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color && b[z][y][x+3] == color && b[z][y][x+4] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition && b[z][y][x+3] == opposition && b[z][y][x+4] == opposition){score-=4;}
                 }
             }
         }
 
         //----------Vertical---------//
-        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
-        {
-            for (int y = 0; y < Board.Y_SIZE; y++)
-            {
-                for (int x = 0; x < Board.X_SIZE; x++)
-                {
-
+        for (int z = 0; z < 8; z++){
+            for (int x = 0; x < 8; x++){
+                for (int y = 0; y + 4 < 7; y++){
+                    if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == color && b[z][y+4][x] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == opposition && b[z][y+4][x] == opposition){score-=4;}
                 }
             }
         }
 
         //----------Horizontal-UP-DOWN---------//
-        for (char[][] z : b)
-        {
-            for (int y = 0; y + 4 < Board.Y_SIZE; y++)
-            {
-                for (int x = 0; x < Board.X_SIZE; x++)
-                {
-
+        for (int y = 0; y < 7; y++){
+            for (int z = 0; z < 8; z++){
+                for (int x = 0; x + 4 < 8; x++){
+                    if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color && b[z+3][y][x] == color && b[z+4][y][x] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == opposition && b[z+4][y][x] == opposition){score-=4;}
                 }
             }
         }
 
         //---------Diagonal-UP-DOWN-------//
-        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
-        {
-            for (int y = 0; y < Board.Y_SIZE; y++)
-            {
-                for (int x = 0; x + 4 < Board.X_SIZE; x++)
-                {
-
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++){
+            for (int y = 0; y < Board.Y_SIZE; y++){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == color && b[z+4][y][x+4] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == opposition){score-=4;}
                 }
             }
         }
 
         //---------Diagonal-DOWN-UP-------//
-        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--)
-        {
-            for (int y = 0; y < Board.Y_SIZE; y++)
-            {
-                for (int x = 0; x + 4 < Board.X_SIZE; x++)
-
-                {
-
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--){
+            for (int y = 0; y < Board.Y_SIZE; y++){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == color && b[z-4][y][x+4] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == opposition){score-=4;}
                 }
             }
         }
 
         //--------V-Diagonal-UP-DOWN-WALL-1----//
-        for (char[][] z : b)
-        {
-            for (int y = 0; y + 4 < Board.Y_SIZE; y++)
-            {
-                for (int x = 0; x + 4 < Board.X_SIZE; x++)
-                {
-
+        for (int z = 0; z < 8; z++){
+            for (int y = 0; y + 4 < Board.Y_SIZE; y++){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == color && b[z][y+4][x+4] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == opposition){score-=4;}
                 }
             }
         }
 
         //--------V-Diagonal-DOWN-UP-WALL-1----//
-        for (char[][] z : b)
-        {
-            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
-            {
-                for (int x = 0; x + 4 < Board.X_SIZE; x++)
-                {
-
+        for (int z = 0; z < 8; z++){
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == opposition){score-=4;}
                 }
             }
         }
 
         //--------V-Diagonal-DOWN-UP-WALL-2----//
-        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--)
-        {
-            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
-            {
-                for (int x = 0; x < Board.X_SIZE; x++)
-                {
-
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--){
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--){
+                for (int x = 0; x < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == color && b[z-4][y-4][x] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == opposition){score-=4;}
                 }
             }
         }
 
         //--------V-Diagonal--UP-DOWN-WALL-2---//
-        for (int z = 0; z + 4 < Board.Z_SIZE; z++)
-        {
-            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--)
-            {
-                for (int x = 0; x < Board.X_SIZE; x++)
-                {
-
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++){
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--){
+                for (int x = 0; x < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == '-'){score+=4;}
+                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == opposition){score-=4;}
                 }
             }
         }
@@ -195,9 +177,9 @@ public class Syarief_Andrew_AI
         return score;
     }
 
-    /*public Move FinalizeMove(int col, int row)
+    public Move FinalizeMove(int col, int row)
     {
         //returns best move
-        ;
-    }*/
+        return null;
+    }
 }
