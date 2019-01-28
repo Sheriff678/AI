@@ -205,15 +205,14 @@ public class P3_AI_SyariefE_AndrewC
             for(int y=Board.Y_SIZE-1; y-4 > 0; y--){
                 for(int x=0; x+4 < Board.X_SIZE; x++){
                     if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == neutral){score+=4;}
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color){score+=3;}
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color){score+=2;}
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color){score+=1;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral){score+=1;}
 
                     if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == neutral){score-=4;}
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition){score-=3;}
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition){score-=2;}
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition){score-=1;}
-
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral){score-=1;}
                 }
             }
         }
@@ -222,80 +221,53 @@ public class P3_AI_SyariefE_AndrewC
         for(int z=Board.Z_SIZE-1; z-4 > 0; z--){
             for(int y=0; y+4 < Board.Y_SIZE; y++){
                 for(int x=0; x+4 < Board.X_SIZE; x++){
-                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == color){score+=4;}
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&b[z-3][y+3][x+3] == color){score+=3;}
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color){score+=2;}
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color){score+=1;}
+                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral){score+=1;}
 
+                    if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //--------V-WTF-AM-I-DOING-------//
-        for(int z=0; z+4 > 0; z++)
-        {
-            for(int y=0; y+4 > 0; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
-                            b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == color)
-                        {score+=4;}
+        for(int z=0; z+4 > 0; z++){
+            for(int y=0; y+4 > 0; y++){
+                for(int x=0; x+4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral){score+=1;}
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
-                            b[z+3][y+3][x+3] == color)
-                        {score+=4;}
-
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color)
-                        {score+=4;}
-
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color)
-                        {score+=4;}
+                    if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //--------V-WTF-AM-I-DOING-2-----//
-        for(int z=0; z+4 > 0; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
-                            b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == color)
-                        {score+=4;}
+        for(int z=0; z+4 > 0; z++){
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--){
+                for(int x=0; x+4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral){score+=1;}
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
-                            b[z+3][y-3][x+3] == color)
-                        {score+=4;}
-
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color)
-                        {score+=4;}
-
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color)
-                        {score+=4;}
-
+                    if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         return score;
     }
-
-    public int PritorityEnemy(Board grid)
-    {
-        int score = 0;
-
-
-
-        return score;
-    }
-
-    public int PritorityFriendly(Board grid)
-    {
-        int score = 0;
-        return score;
-    }
-
 }
