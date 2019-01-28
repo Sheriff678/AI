@@ -1,319 +1,231 @@
-public class Syarief_Andrew_AI
+package com.company;
+
+public class P3_AI_SyariefE_AndrewC
 {
-    private char opposition;
     private char color;
+    private char opposition;
+    private final char neutral = '-';
     private Board board;
 
-    public Syarief_Andrew_AI(Board board, char opposition)
+    public P3_AI_SyariefE_AndrewC(Board board, char color)
     {
         this.board = board;
-        this.opposition = opposition;
-
-        if (opposition == 'R')
-            opposition = 'B';
-
-        else if (opposition == 'B')
-            opposition = 'R';
+        this.color = color;
+        if(color == 'R'){opposition = 'B';}
+        else if(color == 'B'){opposition = 'R';}
     }
 
     public Move getMove()
     {
+        int currentState = BoardGrader(board); // Current state of the board
+        Board grid = board; // Off-set board used for worst-case simulation
+        int worstState; // Checks for the worst possible state
+        int bestMove; // The best possible move in the worst case situation
+
+
+
         return null;
     }
 
-    public int BoardGrader(Board grid)
+    public int BoardGrader(Board grid) // Focus on empty spaces & potential wins or losses
     {
         /* -----------Scoring-----------
          * Blank spaces :              1
          * Occupied spaces :           0
          * Potential wins :            4
-         * Potential losses:          -4
+         * Potential losses :         -4
          */
 
-
-        char[][][] b = grid.getBoard();
-        int score = 0;
-
-
-
-        return score;
-    }
-
-    public int priorityFriendly(Board grid)
-    {
         int score = 0;
         char[][][] b = grid.getBoard();
 
+        for(int y = 0; y < 7; y++){
+            for(int x = 0; x < 8; x++){
+                for(int z = 0; z < 8; z++){
+                    if(b[x][y][z] == neutral){score++;}
+                }
+            }
+        }
 
         //----------Horizontal-LEFT-RIGHT---------//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color &&
-                            b[z][y][x+3] == color && b[z][y][x+4] == color)
-                        b.setWinner(color);
+        for (int y = 0; y < 7; y++){
+            for (int z = 0; z < 8; z++){
+                for (int x = 0; x + 4 < 8; x++){
+                    if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color && b[z][y][x+3] == color && b[z][y][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z][y][x+1] == neutral && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral){score+=1;}
 
-                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color &&
-                            b[z][y][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y][x+1] == color)
-                        b.setWinner(color);
-
+                    if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition && b[z][y][x+3] == opposition && b[z][y][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z][y][x+1] == neutral && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //----------Vertical---------//
-        for(int z=0; z+4 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
+        for (int z = 0; z < 8; z++){
+            for (int x = 0; x < 8; x++){
+                for (int y = 0; y + 4 < 7; y++){
+                    if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == color && b[z][y+4][x] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral){score+=1;}
 
-                    if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color &&
-                            b[z+3][y][x] == color && b[z+4][y][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color &&
-                            b[z+3][y][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y][x] == color)
-                        b.setWinner(color);
-
+                    if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == opposition && b[z][y+4][x] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral){score-=1;}
                 }
             }
         }
 
         //----------Horizontal-UP-DOWN---------//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+4 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color &&
-                            b[z][y+3][x] == color && b[z][y+4][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color &&
-                            b[z][y+3][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color)
-                        b.setWinner(color);
-
+        for (int y = 0; y < 7; y++){
+            for (int z = 0; z < 8; z++){
+                for (int x = 0; x + 4 < 8; x++){
+                    if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color && b[z+3][y][x] == color && b[z+4][y][x] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z+1][y][x] == neutral && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral){score+=1;}
+                    
+                    if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == opposition && b[z+4][y][x] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z+1][y][x] == neutral && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral){score-=1;}
                 }
             }
         }
 
         //---------Diagonal-UP-DOWN-------//
-        for(int z=0; z+4 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color &&
-                            b[z+3][y][x+3] == color && b[z+4][y][x+4] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color &&
-                            b[z+3][y][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color)
-                        b.setWinner(color);
-
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++){
+            for (int y = 0; y < Board.Y_SIZE; y++){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == color && b[z+4][y][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral){score+=1;}
+                    
+                    if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //---------Diagonal-DOWN-UP-------//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color &&
-                            b[z-3][y][x+3] == color && b[z-4][y][x+4] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color &&
-                            b[z-3][y][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color)
-                        b.setWinner(color);
-
-                    if(b[z][y][x] == color && b[z-1][y][x+1] == color)
-                        b.setWinner(color);
-
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--){
+            for (int y = 0; y < Board.Y_SIZE; y++){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == color && b[z-4][y][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral){score+=1;}
+                    
+                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //--------V-Diagonal-UP-DOWN-WALL-1----//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+4 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color &&
-                            b[z][y+3][x+3] == color && b[z][y+4][x+4] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color &&
-                            b[z][y+3][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color)
-                        b.setWinner(color);
+        for (int z = 0; z < 8; z++){
+            for (int y = 0; y + 4 < Board.Y_SIZE; y++){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == color && b[z][y+4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral){score+=1;}
+                    
+                    if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //--------V-Diagonal-DOWN-UP-WALL-1----//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color &&
-                            b[z][y-3][x+3] == color && b[z][y-4][x+4] == color)
-                        b.setWinner(color);
+        for (int z = 0; z < 8; z++){
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--){
+                for (int x = 0; x + 4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score+=1;}
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color &&
-                            b[z][y-3][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color)
-                        b.setWinner(color);
-
+                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score-=1;}
                 }
             }
         }
 
         //--------V-Diagonal-DOWN-UP-WALL-2----//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color &&
-                            b[z-3][y-3][x] == color && b[z-4][y-4][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color &&
-                            b[z-3][y-3][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color)
-                        b.setWinner(color);
+        for (int z = Board.Z_SIZE - 1; z - 4 > 0; z--){
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--){
+                for (int x = 0; x < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == color && b[z-4][y-4][x] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral){score+=1;}
+                    
+                    if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral){score-=1;}
                 }
             }
         }
 
         //--------V-Diagonal--UP-DOWN-WALL-2---//
-        for(int z=0; z+4 < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color &&
-                            b[z+3][y-3][x] == color && b[z+4][y-4][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color &&
-                            b[z+3][y-3][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color)
-                        b.setWinner(color);
-
+        for (int z = 0; z + 4 < Board.Z_SIZE; z++){
+            for (int y = Board.Y_SIZE - 1; y - 4 > 0; y--){
+                for (int x = 0; x < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score+=3;}
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score+=2;}
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score+=1;}
+                    
+                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral){score-=1;}
                 }
             }
         }
 
-        //--------V-IDK-ANYMORE---------//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color &&
-                            b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == color)
-                        b.setWinner(color);
+        //--------V-IDK-ANYMORE----------//
+        for(int z=Board.Z_SIZE-1; z-4 > 0; z--){
+            for(int y=Board.Y_SIZE-1; y-4 > 0; y--){
+                for(int x=0; x+4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == neutral){score+=4;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color){score+=3;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color){score+=2;}
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color){score+=1;}
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color &&
-                            b[z-3][y-3][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color)
-                        b.setWinner(color);
+                    if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == neutral){score-=4;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition){score-=3;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition){score-=2;}
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition){score-=1;}
 
                 }
             }
         }
 
         //--------V-IDK-ANYMORE-2--------//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=0; y+4 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&
-                            b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&
-                            b[z-3][y+3][x+3] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color)
-                        b.setWinner(color);
-
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color)
-                        b.setWinner(color);
+        for(int z=Board.Z_SIZE-1; z-4 > 0; z--){
+            for(int y=0; y+4 < Board.Y_SIZE; y++){
+                for(int x=0; x+4 < Board.X_SIZE; x++){
+                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == color){score+=4;}
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&b[z-3][y+3][x+3] == color){score+=3;}
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color){score+=2;}
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color){score+=1;}
 
                 }
             }
@@ -328,17 +240,17 @@ public class Syarief_Andrew_AI
                 {
                     if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
                             b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                     else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
                             b[z+3][y+3][x+3] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                     else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                     else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color)
-                        b.setWinner(color);
+                        {score+=4;}
                 }
             }
         }
@@ -352,17 +264,17 @@ public class Syarief_Andrew_AI
                 {
                     if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
                             b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                     else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
                             b[z+3][y-3][x+3] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                     else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                     else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color)
-                        b.setWinner(color);
+                        {score+=4;}
 
                 }
             }
@@ -371,335 +283,18 @@ public class Syarief_Andrew_AI
         return score;
     }
 
-    public int priorityEnemy(Board grid)
+    public int PritorityEnemy(Board grid)
     {
         int score = 0;
-        char[][][] b = grid.getBoard();
 
 
-        //----------Horizontal-LEFT-RIGHT---------//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition &&
-                            b[z][y][x+3] == opposition && b[z][y][x+4] == opposition)
-                        b.setWinner(opposition);
 
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition &&
-                            b[z][y][x+3] == opposition)
-                        b.setWinner(opposition);
+        return score;
+    }
 
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //----------Vertical---------//
-        for(int z=0; z+4 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-
-                    if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition &&
-                            b[z+3][y][x] == opposition && b[z+4][y][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition &&
-                            b[z+3][y][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //----------Horizontal-UP-DOWN---------//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+4 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition &&
-                            b[z][y+3][x] == opposition && b[z][y+4][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition &&
-                            b[z][y+3][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //---------Diagonal-UP-DOWN-------//
-        for(int z=0; z+4 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition &&
-                            b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition &&
-                            b[z+3][y][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //---------Diagonal-DOWN-UP-------//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition &&
-                        b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition &&
-                            b[z-3][y][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //--------V-Diagonal-UP-DOWN-WALL-1----//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+4 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition &&
-                            b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition &&
-                            b[z][y+3][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition)
-                        b.setWinner(opposition);
-                }
-            }
-        }
-
-        //--------V-Diagonal-DOWN-UP-WALL-1----//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition &&
-                            b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition &&
-                            b[z][y-3][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //--------V-Diagonal-DOWN-UP-WALL-2----//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition &&
-                            b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition &&
-                            b[z-3][y-3][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition)
-                        b.setWinner(opposition);
-                }
-            }
-        }
-
-        //--------V-Diagonal--UP-DOWN-WALL-2---//
-        for(int z=0; z+4 < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition &&
-                            b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition &&
-                            b[z+3][y-3][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //--------V-IDK-ANYMORE---------//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition &&
-                            b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition &&
-                            b[z-3][y-3][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //--------V-IDK-ANYMORE-2--------//
-        for(int z=Board.Z_SIZE-1; z-4 > 0; z--)
-        {
-            for(int y=0; y+4 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition &&
-                            b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition &&
-                            b[z-3][y+3][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
-        //--------V-WTF-AM-I-DOING-------//
-        for(int z=0; z+4 > 0; z++)
-        {
-            for(int y=0; y+4 > 0; y++)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition &&
-                            b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition &&
-                            b[z+3][y+3][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition)
-                        b.setWinner(opposition);
-                }
-            }
-        }
-
-        //--------V-WTF-AM-I-DOING-2-----//
-        for(int z=0; z+4 > 0; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-4 > 0; y--)
-            {
-                for(int x=0; x+4 < Board.X_SIZE; x++)
-                {
-                    if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition &&
-                            b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition &&
-                            b[z+3][y-3][x+3] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition)
-                        b.setWinner(opposition);
-
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition)
-                        b.setWinner(opposition);
-
-                }
-            }
-        }
-
+    public int PritorityFriendly(Board grid)
+    {
+        int score = 0;
         return score;
     }
 
