@@ -16,6 +16,42 @@ public class P3_AI_SyariefE_AndrewC
         else if (this.color == 'B'){opposition = 'R';}
     }
 
+    public static void mergeSort(int[] data, int from, int to)
+    {
+        if(from==0 && to == data.length-1)
+            tempData= new int[data.length];
+        if(to == from)
+            return;
+
+        int middle = (from+to)/2;
+        mergeSort(data, from,middle);
+        mergeSort(data,middle+1, to);
+
+        int i = from;
+        int j = middle+1;
+        int k = from;
+
+        while(i <= middle && j <=to)
+        {
+            if(data[i] < data[j])
+                tempData[k++] = data[i++];
+            else
+                tempData[k++] = data[j++];
+        }
+
+        while(i <= middle)
+        {
+            tempData[k++] = data[i++];
+        }
+        while(j <= to)
+        {
+            tempData[k++] = data[j++];
+        }
+
+        for(k = from; k<=to; k++)
+            data[k] = tempData[k];
+    }
+
     public Move getMove()
     {
         int currentState = BoardGrader(board); // Current state of the board
@@ -36,10 +72,10 @@ public class P3_AI_SyariefE_AndrewC
             boards.get(x).makeMove(Moves.get(x), color);
             scores[x] = BoardGrader(boards.get(x));
         }
-        
+
         Move[] possibleMoves = (Move[])Moves.toArray();
 
-        
+
 
 
 
