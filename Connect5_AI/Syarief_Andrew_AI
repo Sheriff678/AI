@@ -25,6 +25,15 @@ public class Syarief_Andrew_AI
         int worstState; // Checks for the worst possible state
         int bestMove; // The best possible move in the worst case situation
 
+        if(currentState >= 0) 
+        {
+            //make a move
+        }
+            
+        else if(currentState < 0) 
+        {
+            //Block enemy
+        }
 
 
         return null;
