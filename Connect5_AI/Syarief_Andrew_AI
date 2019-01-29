@@ -19,10 +19,31 @@ public class P3_AI_SyariefE_AndrewC
     public Move getMove()
     {
         int currentState = BoardGrader(board); // Current state of the board
-        Board grid = board; // Off-set board used for worst-case simulation
-        ArrayList<Move> possibleMoves = new ArrayList<Move>();
+        ArrayList<Move> Moves = new ArrayList<Move>();
+        ArrayList<Board> boards = new ArrayList<Board>();
         Move bestMove = null; // The best possible move in the worst case situation
+
+        for(int x = 0; x < 8; x++){
+            for(int z = 0; z < 8; z++){
+                if(!board.isFull(new Move(z, x))){Moves.add(new Move(z, x));}
+            }
+        }
+
+        int[] scores = new int[Moves.size()];
+
+        for(int x = 0; x < Moves.size(); x++){
+            boards.add(new Board());
+            boards.get(x).makeMove(Moves.get(x), color);
+            scores[x] = BoardGrader(boards.get(x));
+        }
         
+        Move[] possibleMoves = (Move[])Moves.toArray();
+
+        
+
+
+
+        /*
         if(currentState > 0) // Friendly has the initiative; Forwards a move
         {
             Move move;
@@ -67,7 +88,7 @@ public class P3_AI_SyariefE_AndrewC
             }
         }
 
-
+        */
         return bestMove;
     }
 
@@ -755,7 +776,7 @@ public class P3_AI_SyariefE_AndrewC
         return score;
     }
 
-    public int Grader(Board grid, Move move, char color)
+    public int Grader(Board grid, Location move, char color)
     {
         char[][][] b = grid.getBoard();
         int score = 0;
