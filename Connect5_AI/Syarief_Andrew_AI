@@ -1,13 +1,15 @@
 import java.util.ArrayList;
 
-public class P3_AI_SyariefE_AndrewC
+public class Syarief_Andrew_AI
 {
     private char opposition;
     private char color;
     private final char neutral = '-';
     private Board board;
+    private int[] scores;
+    private int[] topScores;
 
-    public P3_AI_SyariefE_AndrewC(Board board, char color)
+    public Syarief_Andrew_AI(Board board, char color)
     {
         this.board = board;
         this.color = color;
@@ -16,10 +18,17 @@ public class P3_AI_SyariefE_AndrewC
         else if (this.color == 'B'){opposition = 'R';}
     }
 
-    public static void mergeSort(int[] data, int from, int to)
+    public static void swap(int[] data, int spot1, int spot2)
+    {
+        int temp 	= data[spot1];
+        data[spot1]	= data[spot2];
+        data[spot2]	= temp;
+    }
+
+    public void mergeSort(int[] data, int from, int to)
     {
         if(from==0 && to == data.length-1)
-            tempData= new int[data.length];
+            topScores = new int[data.length];
         if(to == from)
             return;
 
@@ -34,49 +43,75 @@ public class P3_AI_SyariefE_AndrewC
         while(i <= middle && j <=to)
         {
             if(data[i] < data[j])
-                tempData[k++] = data[i++];
+                topScores[k++] = data[i++];
             else
-                tempData[k++] = data[j++];
+                topScores[k++] = data[j++];
         }
 
         while(i <= middle)
         {
-            tempData[k++] = data[i++];
+            topScores[k++] = data[i++];
         }
         while(j <= to)
         {
-            tempData[k++] = data[j++];
+            topScores[k++] = data[j++];
         }
 
         for(k = from; k<=to; k++)
-            data[k] = tempData[k];
+            data[k] = topScores[k];
     }
 
     public Move getMove()
     {
         int currentState = BoardGrader(board); // Current state of the board
-        ArrayList<Move> Moves = new ArrayList<Move>();
-        ArrayList<Board> boards = new ArrayList<Board>();
+        ArrayList<Move> moves = new ArrayList<>();
+        ArrayList<Board> boards = new ArrayList<>();
         Move bestMove = null; // The best possible move in the worst case situation
 
         for(int x = 0; x < 8; x++){
             for(int z = 0; z < 8; z++){
-                if(!board.isFull(new Move(z, x))){Moves.add(new Move(z, x));}
+                if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}
             }
         }
 
-        int[] scores = new int[Moves.size()];
+        //---------------SIMULATION--------------------------//
+        scores = new int[moves.size()];
 
-        for(int x = 0; x < Moves.size(); x++){
+        int previous;
+        for(int x = 0; x < moves.size(); x++){
             boards.add(new Board());
-            boards.get(x).makeMove(Moves.get(x), color);
+            boards.get(x).makeMove(moves.get(x), color);
             scores[x] = BoardGrader(boards.get(x));
+
+            if(scores.length == 1)
+                previous = scores[0];
+
+            else
+                previous = scores[x-1];
+
+            for(int y=1; y-1< boards.size(); y++)
+            {
+                if(scores[y] > previous)
+                {
+                    swap(scores, y, y-1);
+                    
+                    Board temp = boards.get(y-1);
+                    boards.remove(y-1);
+                    boards.add(y+1, temp);
+                }
+            }
+
         }
 
-        Move[] possibleMoves = (Move[])Moves.toArray();
+        //----------------BEST-BOARDS----------------------//
+        ArrayList<Board> bestBoards = new ArrayList<>();
+        for(int x=boards.size()-1; x>boards.size()/2; x++)
+            bestBoards.add(boards.get(x));
 
-
-
+        //----------------BEST-SCORES----------------------//
+        mergeSort(scores, 0, scores.length);
+        for(int x=scores.length-1; x>scores.length/2; x++)
+            topScores[x] = scores[x];
 
 
         /*
