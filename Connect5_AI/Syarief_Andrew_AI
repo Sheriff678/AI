@@ -68,8 +68,8 @@ public class Syarief_Andrew_AI
         ArrayList<Board> boards = new ArrayList<>();
         Move bestMove = null; // The best possible move in the worst case situation
 
-        for(int x = 0; x < 8; x++){
-            for(int z = 0; z < 8; z++){
+        for(int x = 0; x < Board.X_SIZE; x++){
+            for(int z = 0; z < Board.Z_SIZE; z++){
                 if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}
             }
         }
@@ -94,7 +94,7 @@ public class Syarief_Andrew_AI
                 if(scores[y] > previous)
                 {
                     swap(scores, y, y-1);
-                    
+
                     Board temp = boards.get(y-1);
                     boards.remove(y-1);
                     boards.add(y+1, temp);
