@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Syarief_Andrew_AI
+public class P3_AI_SyariefE_AndrewC
 {
     private char opposition;
     private char color;
@@ -9,7 +9,7 @@ public class Syarief_Andrew_AI
     private int[] scores;
     private int[] topScores;
 
-    public Syarief_Andrew_AI(Board board, char color)
+    public P3_AI_SyariefE_AndrewC(Board board, char color)
     {
         this.board = board;
         this.color = color;
@@ -18,14 +18,14 @@ public class Syarief_Andrew_AI
         else if (this.color == 'B'){opposition = 'R';}
     }
 
-    public static void swap(int[] data, int spot1, int spot2)
+    private static void swap(int[] data, int spot1, int spot2)
     {
         int temp 	= data[spot1];
         data[spot1]	= data[spot2];
         data[spot2]	= temp;
     }
 
-    public void mergeSort(int[] data, int from, int to)
+    private void mergeSort(int[] data, int from, int to)
     {
         if(from==0 && to == data.length-1)
             topScores = new int[data.length];
@@ -64,35 +64,26 @@ public class Syarief_Andrew_AI
     public Move getMove()
     {
         int currentState = BoardGrader(board); // Current state of the board
-        ArrayList<Move> moves = new ArrayList<>();
+        ArrayList<Move> oppositionMoves = new ArrayList<>();
         ArrayList<Board> boards = new ArrayList<>();
         Move bestMove = null; // The best possible move in the worst case situation
 
-        for(int x = 0; x < Board.X_SIZE; x++){
-            for(int z = 0; z < Board.Z_SIZE; z++){
-                if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}
-            }
-        }
+        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){oppositionMoves.add(new Move(z, x));}}}
 
         //---------------SIMULATION--------------------------//
-        scores = new int[moves.size()];
+        scores = new int[oppositionMoves.size()];
 
         int previous;
-        for(int x = 0; x < moves.size(); x++){
+        for(int x = 0; x < oppositionMoves.size(); x++){
             boards.add(new Board());
-            boards.get(x).makeMove(moves.get(x), color);
+            boards.get(x).makeMove(oppositionMoves.get(x), color);
             scores[x] = BoardGrader(boards.get(x));
 
-            if(scores.length == 1)
-                previous = scores[0];
+            if(scores.length == 1){previous = scores[0];}
+            else{previous = scores[x-1];}
 
-            else
-                previous = scores[x-1];
-
-            for(int y=1; y-1< boards.size(); y++)
-            {
-                if(scores[y] > previous)
-                {
+            for(int y=1; y-1< boards.size(); y++){
+                if(scores[y] > previous){
                     swap(scores, y, y-1);
 
                     Board temp = boards.get(y-1);
@@ -100,70 +91,75 @@ public class Syarief_Andrew_AI
                     boards.add(y+1, temp);
                 }
             }
-
         }
 
         //----------------BEST-BOARDS----------------------//
         ArrayList<Board> bestBoards = new ArrayList<>();
-        for(int x=boards.size()-1; x>boards.size()/2; x++)
-            bestBoards.add(boards.get(x));
+        for(int x=boards.size()-1; x>boards.size() - boards.size()/4; x--){bestBoards.add(boards.get(x));}
 
         //----------------BEST-SCORES----------------------//
         mergeSort(scores, 0, scores.length);
-        for(int x=scores.length-1; x>scores.length/2; x++)
-            topScores[x] = scores[x];
+        for(int x=scores.length-1; x>scores.length-scores.length/4; x--){topScores[x] = scores[x];}
 
+        ArrayList<ArrayList<Board>> countermeasures = new ArrayList<>();
 
-        /*
-        if(currentState > 0) // Friendly has the initiative; Forwards a move
+        for(int x = 0; x < bestBoards.size(); x++)
         {
-            Move move;
-            int currentBest = 0;
-
-            for(int z=0; z < Board.Z_SIZE; z++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    move = new Move(z, x);
-                    grid.makeMove(move, color);
-                    int currentMove = Grader(grid, move, color);
-
-                    if(currentMove > currentBest)
-                    {
-                        currentBest = currentMove;
-                        bestMove = new Move(z, x);
-                    }
-                }
-            }
+            countermeasures.add(possibleCounters(bestBoards.get(x)));
         }
 
-        else if(currentState < 0) // Enemy has the initiative; Utilizes countermeasures
-        {
-            Move move;
-            int currentBest = 0;
+        
 
-            for(int z=0; z < Board.Z_SIZE; z++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    move = new Move(z, x);
-                    grid.makeMove(move, opposition);
-                    int currentMove = Grader(grid, move, opposition);
 
-                    if(currentMove > currentBest)
-                    {
-                        currentBest = currentMove;
-                        bestMove = new Move(z, x);
-                    }
-                }
-            }
-        }
 
-        */
+
+
+
         return bestMove;
     }
+    
+    private ArrayList<Board> possibleCounters(Board board)
+    { 
+        ArrayList<Move> oppositionMoves = new ArrayList<>();
+        ArrayList<Board> boards = new ArrayList<>();
 
-    public int BoardGrader(Board grid)
+        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){oppositionMoves.add(new Move(z, x));}}}
+
+        //---------------SIMULATION--------------------------//
+        scores = new int[oppositionMoves.size()];
+
+        int previous;
+        for(int x = 0; x < oppositionMoves.size(); x++){
+            boards.add(new Board());
+            boards.get(x).makeMove(oppositionMoves.get(x), color);
+            scores[x] = BoardGrader(boards.get(x));
+
+            if(scores.length == 1){previous = scores[0];}
+            else{previous = scores[x-1];}
+
+            for(int y=1; y-1< boards.size(); y++){
+                if(scores[y] < previous){
+                    swap(scores, y, y-1);
+
+                    Board temp = boards.get(y-1);
+                    boards.remove(y-1);
+                    boards.add(y+1, temp);
+                }
+            }
+        }
+
+        //----------------BEST-BOARDS----------------------//
+        ArrayList<Board> bestBoards = new ArrayList<>();
+        for(int x=0; x<boards.size()/4; x++){bestBoards.add(boards.get(x));}
+
+        //----------------BEST-SCORES----------------------//
+        mergeSort(scores, 0, scores.length);
+        for(int x=0; x<scores.length/4; x++){topScores[x] = scores[x];}
+        
+        return bestBoards;
+    }
+
+    private int BoardGrader(Board grid)
     {
         /* -----------Scoring-----------
          * Blank spaces :              1
@@ -847,7 +843,8 @@ public class Syarief_Andrew_AI
         return score;
     }
 
-    public int Grader(Board grid, Location move, char color)
+    /*
+    private int Grader(Board grid, Location move, char color)
     {
         char[][][] b = grid.getBoard();
         int score = 0;
@@ -1261,4 +1258,5 @@ public class Syarief_Andrew_AI
 
         return score;
     }
+    */
 }
