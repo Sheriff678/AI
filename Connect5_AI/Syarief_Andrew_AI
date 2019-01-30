@@ -1,15 +1,13 @@
 import java.util.ArrayList;
 
-public class P3_AI_SyariefE_AndrewC
+public class Syarief_Andrew_AI
 {
     private char opposition;
     private char color;
     private final char neutral = '-';
     private Board board;
-    private int[] scores;
-    private int[] topScores;
 
-    public P3_AI_SyariefE_AndrewC(Board board, char color)
+    public Syarief_Andrew_AI(Board board, char color)
     {
         this.board = board;
         this.color = color;
@@ -25,7 +23,7 @@ public class P3_AI_SyariefE_AndrewC
         data[spot2]	= temp;
     }
 
-    private void mergeSort(int[] data, int from, int to)
+    private void mergeSort(int[] data, int from, int to, int[] topScores)
     {
         if(from==0 && to == data.length-1)
             topScores = new int[data.length];
@@ -33,8 +31,8 @@ public class P3_AI_SyariefE_AndrewC
             return;
 
         int middle = (from+to)/2;
-        mergeSort(data, from,middle);
-        mergeSort(data,middle+1, to);
+        mergeSort(data, from,middle, topScores);
+        mergeSort(data,middle+1, to, topScores);
 
         int i = from;
         int j = middle+1;
@@ -63,20 +61,23 @@ public class P3_AI_SyariefE_AndrewC
 
     public Move getMove()
     {
-        int currentState = BoardGrader(board); // Current state of the board
-        ArrayList<Move> oppositionMoves = new ArrayList<>();
+        ArrayList<Move> moves = new ArrayList<>();
         ArrayList<Board> boards = new ArrayList<>();
         Move bestMove = null; // The best possible move in the worst case situation
 
-        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){oppositionMoves.add(new Move(z, x));}}}
+        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
 
         //---------------SIMULATION--------------------------//
-        scores = new int[oppositionMoves.size()];
-
+        int[] scores;
+        int[] topScores;
+        scores = new int[moves.size()];
+        topScores = new int[moves.size()/4];
+        
         int previous;
-        for(int x = 0; x < oppositionMoves.size(); x++){
+        for(int x = 0; x < moves.size(); x++)
+        {
             boards.add(new Board());
-            boards.get(x).makeMove(oppositionMoves.get(x), color);
+            boards.get(x).makeMove(moves.get(x), color);
             scores[x] = BoardGrader(boards.get(x));
 
             if(scores.length == 1){previous = scores[0];}
@@ -89,16 +90,24 @@ public class P3_AI_SyariefE_AndrewC
                     Board temp = boards.get(y-1);
                     boards.remove(y-1);
                     boards.add(y+1, temp);
+
+                    Move t = moves.get(y-1);
+                    moves.remove(y-1);
+                    moves.add(y+1, t);
                 }
             }
         }
+
+        //----------------BEST-MOVES----------------------//
+        ArrayList<Board> bestMoves = new ArrayList<>();
+        for(int x=boards.size()-1; x>boards.size() - boards.size()/4; x--){bestMoves.add(boards.get(x));}
 
         //----------------BEST-BOARDS----------------------//
         ArrayList<Board> bestBoards = new ArrayList<>();
         for(int x=boards.size()-1; x>boards.size() - boards.size()/4; x--){bestBoards.add(boards.get(x));}
 
         //----------------BEST-SCORES----------------------//
-        mergeSort(scores, 0, scores.length);
+        mergeSort(scores, 0, scores.length, topScores);
         for(int x=scores.length-1; x>scores.length-scores.length/4; x--){topScores[x] = scores[x];}
 
         ArrayList<ArrayList<Board>> countermeasures = new ArrayList<>();
@@ -107,31 +116,29 @@ public class P3_AI_SyariefE_AndrewC
         {
             countermeasures.add(possibleCounters(bestBoards.get(x)));
         }
-
         
-
-
-
-
-
+        bestMove = moves.get(bestMoves.size()-1);
 
         return bestMove;
     }
-    
+
     private ArrayList<Board> possibleCounters(Board board)
-    { 
-        ArrayList<Move> oppositionMoves = new ArrayList<>();
+    {
+        ArrayList<Move> moves = new ArrayList<>();
         ArrayList<Board> boards = new ArrayList<>();
 
-        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){oppositionMoves.add(new Move(z, x));}}}
+        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
 
         //---------------SIMULATION--------------------------//
-        scores = new int[oppositionMoves.size()];
+        int[] scores;
+        int[] enemyTopScores;
+        scores = new int[moves.size()];
+        enemyTopScores = new int[moves.size()/4];
 
         int previous;
-        for(int x = 0; x < oppositionMoves.size(); x++){
+        for(int x = 0; x < moves.size(); x++){
             boards.add(new Board());
-            boards.get(x).makeMove(oppositionMoves.get(x), color);
+            boards.get(x).makeMove(moves.get(x), color);
             scores[x] = BoardGrader(boards.get(x));
 
             if(scores.length == 1){previous = scores[0];}
@@ -153,9 +160,9 @@ public class P3_AI_SyariefE_AndrewC
         for(int x=0; x<boards.size()/4; x++){bestBoards.add(boards.get(x));}
 
         //----------------BEST-SCORES----------------------//
-        mergeSort(scores, 0, scores.length);
-        for(int x=0; x<scores.length/4; x++){topScores[x] = scores[x];}
-        
+        mergeSort(scores, 0, scores.length, enemyTopScores);
+        for(int x=0; x<scores.length/4; x++){enemyTopScores[x] = scores[x];}
+
         return bestBoards;
     }
 
@@ -843,7 +850,7 @@ public class P3_AI_SyariefE_AndrewC
         return score;
     }
 
-    /*
+    
     private int Grader(Board grid, Location move, char color)
     {
         char[][][] b = grid.getBoard();
@@ -1258,5 +1265,5 @@ public class P3_AI_SyariefE_AndrewC
 
         return score;
     }
-    */
+    
 }
