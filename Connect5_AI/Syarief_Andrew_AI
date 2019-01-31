@@ -1,19 +1,16 @@
 import java.util.ArrayList;
 
-public class Syarief_Andrew_AI
+public class P3_AI_SE_AC
 {
-    private char opposition;
     private char color;
     private final char neutral = '-';
     private Board board;
+    private int[] scores, topScores;
+    private final int lookAheadLimit = 5; // Adjustable; Default = 5
 
-    public Syarief_Andrew_AI(Board board, char color)
+    public P3_AI_SE_AC(Board board, char color)
     {
-        this.board = board;
-        this.color = color;
-
-        if (this.color == 'R'){opposition = 'B';}
-        else if (this.color == 'B'){opposition = 'R';}
+        this.board = board; this.color = color;
     }
 
     private static void swap(int[] data, int spot1, int spot2)
@@ -23,123 +20,59 @@ public class Syarief_Andrew_AI
         data[spot2]	= temp;
     }
 
-    private void mergeSort(int[] data, int from, int to, int[] topScores)
+    private void mergeSort(int[] data, int from, int to)
     {
-        if(from==0 && to == data.length-1)
-            topScores = new int[data.length];
-        if(to == from)
-            return;
+        if(from==0 && to == data.length-1){topScores = new int[data.length];}
+        if(to == from){return;}
 
         int middle = (from+to)/2;
-        mergeSort(data, from,middle, topScores);
-        mergeSort(data,middle+1, to, topScores);
+        mergeSort(data, from,middle);
+        mergeSort(data,middle+1, to);
 
         int i = from;
         int j = middle+1;
         int k = from;
 
-        while(i <= middle && j <=to)
-        {
-            if(data[i] < data[j])
-                topScores[k++] = data[i++];
-            else
-                topScores[k++] = data[j++];
+        while(i <= middle && j <=to){
+            if(data[i] < data[j]){topScores[k++] = data[i++];}
+            else{topScores[k++] = data[j++];}
         }
 
-        while(i <= middle)
-        {
-            topScores[k++] = data[i++];
-        }
-        while(j <= to)
-        {
-            topScores[k++] = data[j++];
-        }
+        while(i <= middle){topScores[k++] = data[i++];}
+        while(j <= to){topScores[k++] = data[j++];}
 
-        for(k = from; k<=to; k++)
-            data[k] = topScores[k];
+        for(k = from; k<=to; k++){data[k] = topScores[k];}
     }
 
     public Move getMove()
     {
-        ArrayList<Move> moves = new ArrayList<>();
-        ArrayList<Board> boards = new ArrayList<>();
-        Move bestMove = null; // The best possible move in the worst case situation
+        //ArrayList<Board> potential_Boards = possibleBoards(board, color);
+        ArrayList<Move> potential_Moves = possibleMoves(board, color);
 
-        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
+        //BoardList countermeasures = new BoardList(potential_Boards, color, lookAheadLimit, 0);
 
-        //---------------SIMULATION--------------------------//
-        int[] scores;
-        int[] topScores;
-        scores = new int[moves.size()];
-        topScores = new int[moves.size()/4];
+        //bestMove = potential_Boards.get(0);
+        //Board bestBoard = potential_Boards.get(0);
         
-        int previous;
-        for(int x = 0; x < moves.size(); x++)
-        {
-            boards.add(new Board());
-            boards.get(x).makeMove(moves.get(x), color);
-            scores[x] = BoardGrader(boards.get(x));
-
-            if(scores.length == 1){previous = scores[0];}
-            else{previous = scores[x-1];}
-
-            for(int y=1; y-1< boards.size(); y++){
-                if(scores[y] > previous){
-                    swap(scores, y, y-1);
-
-                    Board temp = boards.get(y-1);
-                    boards.remove(y-1);
-                    boards.add(y+1, temp);
-
-                    Move t = moves.get(y-1);
-                    moves.remove(y-1);
-                    moves.add(y+1, t);
-                }
-            }
-        }
-
-        //----------------BEST-MOVES----------------------//
-        ArrayList<Board> bestMoves = new ArrayList<>();
-        for(int x=boards.size()-1; x>boards.size() - boards.size()/4; x--){bestMoves.add(boards.get(x));}
-
-        //----------------BEST-BOARDS----------------------//
-        ArrayList<Board> bestBoards = new ArrayList<>();
-        for(int x=boards.size()-1; x>boards.size() - boards.size()/4; x--){bestBoards.add(boards.get(x));}
-
-        //----------------BEST-SCORES----------------------//
-        mergeSort(scores, 0, scores.length, topScores);
-        for(int x=scores.length-1; x>scores.length-scores.length/4; x--){topScores[x] = scores[x];}
-
-        ArrayList<ArrayList<Board>> countermeasures = new ArrayList<>();
-
-        for(int x = 0; x < bestBoards.size(); x++)
-        {
-            countermeasures.add(possibleCounters(bestBoards.get(x)));
-        }
-        
-        bestMove = moves.get(bestMoves.size()-1);
-
-        return bestMove;
+        return potential_Moves.get(0);
     }
-
-    private ArrayList<Board> possibleCounters(Board board)
-    {
+    
+    private ArrayList<Move> possibleMoves(Board board, char color)
+    { 
         ArrayList<Move> moves = new ArrayList<>();
         ArrayList<Board> boards = new ArrayList<>();
 
         for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
 
         //---------------SIMULATION--------------------------//
-        int[] scores;
-        int[] enemyTopScores;
         scores = new int[moves.size()];
-        enemyTopScores = new int[moves.size()/4];
 
         int previous;
         for(int x = 0; x < moves.size(); x++){
             boards.add(new Board());
             boards.get(x).makeMove(moves.get(x), color);
-            scores[x] = BoardGrader(boards.get(x));
+            scores[x] = BoardGrader(boards.get(x), color);
+            //scores[x] = Grader(boards.get(x), moves.get(x), color);
 
             if(scores.length == 1){previous = scores[0];}
             else{previous = scores[x-1];}
@@ -147,10 +80,12 @@ public class Syarief_Andrew_AI
             for(int y=1; y-1< boards.size(); y++){
                 if(scores[y] < previous){
                     swap(scores, y, y-1);
-
                     Board temp = boards.get(y-1);
                     boards.remove(y-1);
                     boards.add(y+1, temp);
+                    Move dup = moves.get(y-1);
+                    moves.remove(y-1);
+                    moves.add(y+1, dup);
                 }
             }
         }
@@ -159,14 +94,66 @@ public class Syarief_Andrew_AI
         ArrayList<Board> bestBoards = new ArrayList<>();
         for(int x=0; x<boards.size()/4; x++){bestBoards.add(boards.get(x));}
 
+        //----------------BEST-MOVES----------------------//
+        ArrayList<Move> bestMoves = new ArrayList<>();
+        for(int x=0; x<moves.size()/4; x++){bestMoves.add(moves.get(x));}
+
         //----------------BEST-SCORES----------------------//
-        mergeSort(scores, 0, scores.length, enemyTopScores);
-        for(int x=0; x<scores.length/4; x++){enemyTopScores[x] = scores[x];}
+        mergeSort(scores, 0, scores.length);
+        for(int x=0; x<scores.length/4; x++){topScores[x] = scores[x];}
+        
+        return bestMoves;
+    }
+
+    private ArrayList<Board> possibleBoards(Board board, char color)
+    {
+        ArrayList<Move> moves = new ArrayList<>();
+        ArrayList<Board> boards = new ArrayList<>();
+
+        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
+
+        //---------------SIMULATION--------------------------//
+        scores = new int[moves.size()];
+
+        int previous;
+        for(int x = 0; x < moves.size(); x++){
+            boards.add(new Board());
+            boards.get(x).makeMove(moves.get(x), color);
+            scores[x] = BoardGrader(boards.get(x), color);
+            //scores[x] = Grader(boards.get(x), moves.get(x), color);
+
+            if(scores.length == 1){previous = scores[0];}
+            else{previous = scores[x-1];}
+
+            for(int y=1; y-1< boards.size(); y++){
+                if(scores[y] < previous){
+                    swap(scores, y, y-1);
+                    Board temp = boards.get(y-1);
+                    boards.remove(y-1);
+                    boards.add(y+1, temp);
+                    Move dup = moves.get(y-1);
+                    moves.remove(y-1);
+                    moves.add(y+1, dup);
+                }
+            }
+        }
+
+        //----------------BEST-BOARDS----------------------//
+        ArrayList<Board> bestBoards = new ArrayList<>();
+        for(int x=0; x<boards.size()/4; x++){bestBoards.add(boards.get(x));}
+
+        //----------------BEST-MOVES----------------------//
+        ArrayList<Move> bestMoves = new ArrayList<>();
+        for(int x=0; x<moves.size()/4; x++){bestMoves.add(moves.get(x));}
+
+        //----------------BEST-SCORES----------------------//
+        mergeSort(scores, 0, scores.length);
+        for(int x=0; x<scores.length/4; x++){topScores[x] = scores[x];}
 
         return bestBoards;
     }
 
-    private int BoardGrader(Board grid)
+    private int BoardGrader(Board grid, char color)
     {
         /* -----------Scoring-----------
          * Blank spaces :              1
@@ -174,6 +161,11 @@ public class Syarief_Andrew_AI
          * Potential wins :            5
          * Potential losses:          -5
          */
+
+        char opposition = neutral;
+
+        if (color == 'R'){opposition = 'B';}
+        else if (color == 'B'){opposition = 'R';}
 
         char[][][] b = grid.getBoard();
         int score = 0;
@@ -255,12 +247,10 @@ public class Syarief_Andrew_AI
                     else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == neutral &&
-                            b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == neutral && b[z+2][y][x] == neutral &&
-                            b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y][x] == neutral && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
                         score-=1;
 
                 }
@@ -274,46 +264,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color &&
-                            b[z][y+3][x] == color && b[z][y+4][x] == color && b[z][y+5][x] == neutral)
+                    if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == color && b[z][y+4][x] == color && b[z][y+5][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color &&
-                            b[z][y+3][x] == color && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == color && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color &&
-                            b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == neutral &&
-                            b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral &&
-                            b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition &&
-                            b[z][y+3][x] == opposition && b[z][y+4][x] == opposition && b[z][y+5][x] == neutral)
+                    if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == opposition && b[z][y+4][x] == opposition && b[z][y+5][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition &&
-                            b[z][y+3][x] == opposition && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == opposition && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition &&
-                            b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == neutral &&
-                            b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral &&
-                            b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
                         score-=1;
 
                 }
@@ -327,46 +307,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color &&
-                            b[z+3][y][x+3] == color && b[z+4][y][x+4] == color && b[z+5][y][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == color && b[z+4][y][x+4] == color && b[z+5][y][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color &&
-                            b[z+3][y][x+3] == color && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == color && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color &&
-                            b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == neutral &&
-                            b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral &&
-                            b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition &&
-                            b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == opposition && b[z+5][y][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == opposition && b[z+5][y][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition &&
-                            b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition &&
-                            b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == neutral &&
-                            b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral &&
-                            b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
                         score-=1;
 
                 }
@@ -380,46 +350,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color &&
-                            b[z-3][y][x+3] == color && b[z-4][y][x+4] == color && b[z-5][y][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == color && b[z-4][y][x+4] == color && b[z-5][y][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color &&
-                            b[z-3][y][x+3] == color && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == color && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color &&
-                            b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == neutral &&
-                            b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral &&
-                            b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition &&
-                            b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == opposition && b[z-5][y][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == opposition && b[z-5][y][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition &&
-                            b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition &&
-                            b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == neutral &&
-                            b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral &&
-                            b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
                         score-=1;
 
                 }
@@ -433,46 +393,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color &&
-                            b[z][y+3][x+3] == color && b[z][y+4][x+4] == color && b[z][y+5][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == color && b[z][y+4][x+4] == color && b[z][y+5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color &&
-                            b[z][y+3][x+3] == color && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == color && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color &&
-                            b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == neutral &&
-                            b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral &&
-                            b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition &&
-                            b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == opposition && b[z][y+5][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == opposition && b[z][y+5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition &&
-                            b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition &&
-                            b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == neutral &&
-                            b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral &&
-                            b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
                         score-=1;
                 }
             }
@@ -485,46 +435,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color &&
-                            b[z][y-3][x+3] == color && b[z][y-4][x+4] == color && b[z][y-5][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == color && b[z][y-5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color &&
-                            b[z][y-3][x+3] == color && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x] == color && b[z][y-2][x] == color &&
-                            b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y-1][x] == color && b[z][y-2][x] == color && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == neutral &&
-                            b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral &&
-                            b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition &&
-                            b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == opposition && b[z][y-5][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == opposition && b[z][y-5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition &&
-                            b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x] == opposition && b[z][y-2][x] == opposition &&
-                            b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y-1][x] == opposition && b[z][y-2][x] == opposition && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == neutral &&
-                            b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral &&
-                            b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
                         score-=1;
 
                 }
@@ -538,46 +478,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color &&
-                            b[z-3][y-3][x] == color && b[z-4][y-4][x] == color && b[z-5][y-5][x] == neutral)
+                    if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == color && b[z-4][y-4][x] == color && b[z-5][y-5][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color &&
-                            b[z-3][y-3][x] == color && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == color && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color &&
-                            b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == neutral &&
-                            b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral &&
-                            b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition &&
-                            b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == opposition && b[z-5][y-5][x] == neutral)
+                    if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == opposition && b[z-5][y-5][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition &&
-                            b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition &&
-                            b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == neutral &&
-                            b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral &&
-                            b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
                         score-=1;
                 }
             }
@@ -590,46 +520,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color &&
-                            b[z+3][y-3][x] == color && b[z+4][y-4][x] == color && b[z+5][y-5][x] == neutral)
+                    if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color && b[z+3][y-3][x] == color && b[z+4][y-4][x] == color && b[z+5][y-5][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color &&
-                            b[z+3][y-3][x] == color && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color && b[z+3][y-3][x] == color && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color &&
-                            b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == neutral &&
-                            b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == neutral && b[z+2][y-2][x] == neutral &&
-                            b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x] == neutral && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition &&
-                            b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == opposition && b[z+5][y-5][x] == neutral)
+                    if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition && b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == opposition && b[z+5][y-5][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition &&
-                            b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition && b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition &&
-                            b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == neutral &&
-                            b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == neutral && b[z+2][y-2][x] == neutral &&
-                            b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == neutral && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
                         score-=1;
 
                 }
@@ -643,46 +563,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color &&
-                            b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == color && b[z-5][y-5][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == color && b[z-5][y-5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color &&
-                            b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color &&
-                            b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == neutral &&
-                            b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral &&
-                            b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition &&
-                            b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == opposition && b[z-5][y-5][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == opposition && b[z-5][y-5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition &&
-                            b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition &&
-                            b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == neutral &&
-                            b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral &&
-                            b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
                         score-=1;
 
                 }
@@ -696,46 +606,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&
-                            b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == color && b[z-5][y+5][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == color && b[z-5][y+5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&
-                            b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color &&
-                            b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == neutral &&
-                            b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral &&
-                            b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition &&
-                            b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == opposition && b[z-5][y+5][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == opposition && b[z-5][y+5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition &&
-                            b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition &&
-                            b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == neutral &&
-                            b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral &&
-                            b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
                         score-=1;
 
                 }
@@ -749,46 +649,36 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
-                            b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == color && b[z+5][y+5][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == color && b[z+5][y+5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
-                            b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color &&
-                            b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == neutral &&
-                            b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral &&
-                            b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition &&
-                            b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == opposition && b[z+5][y+5][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == opposition && b[z+5][y+5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition &&
-                            b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition &&
-                            b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == neutral &&
-                            b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral &&
-                            b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
                         score-=1;
                 }
             }
@@ -801,57 +691,44 @@ public class Syarief_Andrew_AI
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
-                            b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == color && b[z+5][y-5][x+5] == neutral)
+                    if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == color && b[z+5][y-5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
-                            b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color &&
-                            b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == neutral &&
-                            b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral &&
-                            b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition &&
-                            b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == opposition && b[z+5][y-5][x+5] == neutral)
+                    if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == opposition && b[z+5][y-5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition &&
-                            b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition &&
-                            b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == neutral &&
-                            b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral &&
-                            b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
                         score-=1;
-
                 }
             }
         }
-
         return score;
     }
-
     
-    private int Grader(Board grid, Location move, char color)
+    private int Grader(Board grid, Move move, char color)
     {
         char[][][] b = grid.getBoard();
         int score = 0;
@@ -890,24 +767,19 @@ public class Syarief_Andrew_AI
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
 
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color &&
-                            b[move.getZ()+3][y][move.getX()] == color && b[move.getZ()+4][y][move.getX()] == color && b[move.getZ()+5][y][move.getX()] == neutral)
+                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color && b[move.getZ()+3][y][move.getX()] == color && b[move.getZ()+4][y][move.getX()] == color && b[move.getZ()+5][y][move.getX()] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color &&
-                            b[move.getZ()+3][y][move.getX()] == color && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
+                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color && b[move.getZ()+3][y][move.getX()] == color && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color &&
-                            b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
+                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color && b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == neutral &&
-                            b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
+                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == neutral && b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == neutral && b[move.getZ()+2][y][move.getX()] == neutral &&
-                            b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
+                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == neutral && b[move.getZ()+2][y][move.getX()] == neutral && b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
                         score+=1;
 
 
@@ -1258,12 +1130,9 @@ public class Syarief_Andrew_AI
                             b[move.getZ()+3][y-3][move.getX()+3] == neutral && b[move.getZ()+4][y-4][move.getX()+4] == neutral && b[move.getZ()+5][y-5][move.getX()+5] == neutral)
                         score+=1;
 
-
                 }
             }
         }
-
         return score;
     }
-    
 }
