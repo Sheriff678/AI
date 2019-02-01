@@ -45,19 +45,19 @@ public class Syarief_Andrew_AI extends Player
             oppositionScores[x] = grader(board, moves.get(x), opposition);
         }
 
-        for(int x=0; x<friendlyScores.length; x++)
+        /*for(int x=0; x<friendlyScores.length; x++)
         {
             System.out.println("AI: " + friendlyScores[x] + ", Opponent: " + oppositionScores[x]);
-        }
+        }*/
 
         int friendlyMax = 0;
         int oppositionMax = 0;
         for(int x=1; x<moves.size(); x++)
         {
-            if(friendlyScores[x] > friendlyScores[x-1])
+            if(friendlyScores[x] > friendlyScores[x-1] && friendlyScores[x] > friendlyMax)
                 friendlyMax = friendlyScores[x];
 
-            if(oppositionScores[x] > oppositionScores[x-1])
+            if(oppositionScores[x] > oppositionScores[x-1] && oppositionScores[x] > oppositionMax)
                 oppositionMax = oppositionScores[x];
 
             if(friendlyMax > oppositionMax || friendlyMax == oppositionMax)
@@ -65,7 +65,7 @@ public class Syarief_Andrew_AI extends Player
 
             else if(friendlyMax < oppositionMax)
             {
-                bestMove = new Move((int)(Math.random()*7), (int)(Math.random()*7));
+                ;
             }
         }
 
@@ -558,6 +558,11 @@ public class Syarief_Andrew_AI extends Player
         }
 
         return score;
+    }
+    
+    private Move counterMeasures(Board grid)
+    {
+        
     }
 
     @Override
