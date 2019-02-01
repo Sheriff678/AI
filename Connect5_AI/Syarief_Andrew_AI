@@ -1,159 +1,77 @@
 import java.util.ArrayList;
 
-public class P3_AI_SE_AC
+public class Syarief_Andrew_AI extends Player
 {
+    private char opposition;
     private char color;
     private final char neutral = '-';
     private Board board;
-    private int[] scores, topScores;
-    private final int lookAheadLimit = 5; // Adjustable; Default = 5
 
-    public P3_AI_SE_AC(Board board, char color)
+    public Syarief_Andrew_AI(Board board, char color)
     {
-        this.board = board; this.color = color;
+        super("test", color);
+        this.board = board;
+        this.color = color;
+
+        if (color == 'R'){opposition = 'B';}
+        else if (color == 'B'){opposition = 'R';}
     }
 
-    private static void swap(int[] data, int spot1, int spot2)
+
+    public Move getMove(Board board)
     {
-        int temp 	= data[spot1];
-        data[spot1]	= data[spot2];
-        data[spot2]	= temp;
-    }
-
-    private void mergeSort(int[] data, int from, int to)
-    {
-        if(from==0 && to == data.length-1){topScores = new int[data.length];}
-        if(to == from){return;}
-
-        int middle = (from+to)/2;
-        mergeSort(data, from,middle);
-        mergeSort(data,middle+1, to);
-
-        int i = from;
-        int j = middle+1;
-        int k = from;
-
-        while(i <= middle && j <=to){
-            if(data[i] < data[j]){topScores[k++] = data[i++];}
-            else{topScores[k++] = data[j++];}
-        }
-
-        while(i <= middle){topScores[k++] = data[i++];}
-        while(j <= to){topScores[k++] = data[j++];}
-
-        for(k = from; k<=to; k++){data[k] = topScores[k];}
-    }
-
-    public Move getMove()
-    {
-        //ArrayList<Board> potential_Boards = possibleBoards(board, color);
-        ArrayList<Move> potential_Moves = possibleMoves(board, color);
-
-        //BoardList countermeasures = new BoardList(potential_Boards, color, lookAheadLimit, 0);
-
-        //bestMove = potential_Boards.get(0);
-        //Board bestBoard = potential_Boards.get(0);
-        
-        return potential_Moves.get(0);
-    }
-    
-    private ArrayList<Move> possibleMoves(Board board, char color)
-    { 
         ArrayList<Move> moves = new ArrayList<>();
-        ArrayList<Board> boards = new ArrayList<>();
+        Move bestMove = new Move(0,0);
 
-        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
-
-        //---------------SIMULATION--------------------------//
-        scores = new int[moves.size()];
-
-        int previous;
-        for(int x = 0; x < moves.size(); x++){
-            boards.add(new Board());
-            boards.get(x).makeMove(moves.get(x), color);
-            scores[x] = BoardGrader(boards.get(x), color);
-            //scores[x] = Grader(boards.get(x), moves.get(x), color);
-
-            if(scores.length == 1){previous = scores[0];}
-            else{previous = scores[x-1];}
-
-            for(int y=1; y-1< boards.size(); y++){
-                if(scores[y] < previous){
-                    swap(scores, y, y-1);
-                    Board temp = boards.get(y-1);
-                    boards.remove(y-1);
-                    boards.add(y+1, temp);
-                    Move dup = moves.get(y-1);
-                    moves.remove(y-1);
-                    moves.add(y+1, dup);
+        //--------------TEST-ALL-MOVES-----------------//
+        for(int z = 0; z < Board.Z_SIZE; z++)
+        {
+            for(int x = 0; x < Board.X_SIZE; x++)
+            {
+                if(!board.isFull(new Move(z, x)))
+                {
+                    moves.add(new Move(z, x));
                 }
             }
         }
 
-        //----------------BEST-BOARDS----------------------//
-        ArrayList<Board> bestBoards = new ArrayList<>();
-        for(int x=0; x<boards.size()/4; x++){bestBoards.add(boards.get(x));}
+        int[] friendlyScores = new int[moves.size()];
+        int[] oppositionScores = new int[moves.size()];
+        System.out.println("It is called");
 
-        //----------------BEST-MOVES----------------------//
-        ArrayList<Move> bestMoves = new ArrayList<>();
-        for(int x=0; x<moves.size()/4; x++){bestMoves.add(moves.get(x));}
+        //--------------GRADE-MOVES---------------------//
+        for(int x=0; x<moves.size(); x++)
+        {
+            friendlyScores[x] = grader(board, moves.get(x), color);
+            oppositionScores[x] = grader(board, moves.get(x), opposition);
+        }
 
-        //----------------BEST-SCORES----------------------//
-        mergeSort(scores, 0, scores.length);
-        for(int x=0; x<scores.length/4; x++){topScores[x] = scores[x];}
-        
-        return bestMoves;
-    }
 
-    private ArrayList<Board> possibleBoards(Board board, char color)
-    {
-        ArrayList<Move> moves = new ArrayList<>();
-        ArrayList<Board> boards = new ArrayList<>();
 
-        for(int x = 0; x < Board.X_SIZE; x++){for(int z = 0; z < Board.Z_SIZE; z++){if(!board.isFull(new Move(z, x))){moves.add(new Move(z, x));}}}
+        int friendlyMax = 0;
+        int oppositionMax = 0;
+        for(int x=1; x<moves.size(); x++)
+        {
+            if(friendlyScores[x] > friendlyScores[x-1])
+                friendlyMax = friendlyScores[x];
 
-        //---------------SIMULATION--------------------------//
-        scores = new int[moves.size()];
+            if(oppositionScores[x] > oppositionScores[x-1])
+                oppositionMax = oppositionScores[x];
 
-        int previous;
-        for(int x = 0; x < moves.size(); x++){
-            boards.add(new Board());
-            boards.get(x).makeMove(moves.get(x), color);
-            scores[x] = BoardGrader(boards.get(x), color);
-            //scores[x] = Grader(boards.get(x), moves.get(x), color);
+            if(friendlyMax > oppositionMax || friendlyMax == oppositionMax)
+                bestMove = moves.get(x);
 
-            if(scores.length == 1){previous = scores[0];}
-            else{previous = scores[x-1];}
-
-            for(int y=1; y-1< boards.size(); y++){
-                if(scores[y] < previous){
-                    swap(scores, y, y-1);
-                    Board temp = boards.get(y-1);
-                    boards.remove(y-1);
-                    boards.add(y+1, temp);
-                    Move dup = moves.get(y-1);
-                    moves.remove(y-1);
-                    moves.add(y+1, dup);
-                }
+            else if(friendlyMax < oppositionMax)
+            {
+                bestMove = new Move((int)(Math.random()*7), (int)(Math.random()*7));
             }
         }
 
-        //----------------BEST-BOARDS----------------------//
-        ArrayList<Board> bestBoards = new ArrayList<>();
-        for(int x=0; x<boards.size()/4; x++){bestBoards.add(boards.get(x));}
-
-        //----------------BEST-MOVES----------------------//
-        ArrayList<Move> bestMoves = new ArrayList<>();
-        for(int x=0; x<moves.size()/4; x++){bestMoves.add(moves.get(x));}
-
-        //----------------BEST-SCORES----------------------//
-        mergeSort(scores, 0, scores.length);
-        for(int x=0; x<scores.length/4; x++){topScores[x] = scores[x];}
-
-        return bestBoards;
+        return bestMove;
     }
 
-    private int BoardGrader(Board grid, char color)
+
+    private int BoardGrader(Board grid)
     {
         /* -----------Scoring-----------
          * Blank spaces :              1
@@ -161,13 +79,7 @@ public class P3_AI_SE_AC
          * Potential wins :            5
          * Potential losses:          -5
          */
-
-        char opposition = neutral;
-
-        if (color == 'R'){opposition = 'B';}
-        else if (color == 'B'){opposition = 'R';}
-
-        char[][][] b = grid.getBoard();
+        
         int score = 0;
 
         //----------Horizontal-LEFT-RIGHT---------//
@@ -177,36 +89,36 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color && b[z][y][x+3] == color && b[z][y][x+4] == color && b[z][y][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x+1] == color && grid.getBoard()[z][y][x+2] == color && grid.getBoard()[z][y][x+3] == color && grid.getBoard()[z][y][x+4] == color && grid.getBoard()[z][y][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color && b[z][y][x+3] == color && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x+1] == color && grid.getBoard()[z][y][x+2] == color && grid.getBoard()[z][y][x+3] == color && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == color && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x+1] == color && grid.getBoard()[z][y][x+2] == color && grid.getBoard()[z][y][x+3] == neutral && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y][x+1] == color && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x+1] == color && grid.getBoard()[z][y][x+2] == neutral && grid.getBoard()[z][y][x+3] == neutral && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y][x+1] == neutral && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x+1] == neutral && grid.getBoard()[z][y][x+2] == neutral && grid.getBoard()[z][y][x+3] == neutral && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition && b[z][y][x+3] == opposition && b[z][y][x+4] == opposition && b[z][y][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y][x+1] == opposition && grid.getBoard()[z][y][x+2] == opposition && grid.getBoard()[z][y][x+3] == opposition && grid.getBoard()[z][y][x+4] == opposition && grid.getBoard()[z][y][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition && b[z][y][x+3] == opposition && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y][x+1] == opposition && grid.getBoard()[z][y][x+2] == opposition && grid.getBoard()[z][y][x+3] == opposition && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == opposition && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y][x+1] == opposition && grid.getBoard()[z][y][x+2] == opposition && grid.getBoard()[z][y][x+3] == neutral && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == opposition && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y][x+1] == opposition && grid.getBoard()[z][y][x+2] == neutral && grid.getBoard()[z][y][x+3] == neutral && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y][x+1] == neutral && b[z][y][x+2] == neutral && b[z][y][x+3] == neutral && b[z][y][x+4] == neutral && b[z][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y][x+1] == neutral && grid.getBoard()[z][y][x+2] == neutral && grid.getBoard()[z][y][x+3] == neutral && grid.getBoard()[z][y][x+4] == neutral && grid.getBoard()[z][y][x+5] == neutral)
                         score-=1;
 
                 }
@@ -221,36 +133,38 @@ public class P3_AI_SE_AC
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
 
-                    if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color && b[z+3][y][x] == color && b[z+4][y][x] == color && b[z+5][y][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x] == color && grid.getBoard()[z+2][y][x] == color && grid.getBoard()[z+3][y][x] == color && grid.getBoard()[z+4][y][x] == color && grid.getBoard()[z+5][y][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color && b[z+3][y][x] == color && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x] == color && grid.getBoard()[z+2][y][x] == color && grid.getBoard()[z+3][y][x] == color && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == color && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x] == color && grid.getBoard()[z+2][y][x] == color && grid.getBoard()[z+3][y][x] == neutral && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x] == color && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x] == color && grid.getBoard()[z+2][y][x] == neutral && grid.getBoard()[z+3][y][x] == neutral && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x] == neutral && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x] == neutral && grid.getBoard()[z+2][y][x] == neutral && grid.getBoard()[z+3][y][x] == neutral && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == opposition && b[z+4][y][x] == opposition && b[z+5][y][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x] == opposition && grid.getBoard()[z+2][y][x] == opposition && grid.getBoard()[z+3][y][x] == opposition && grid.getBoard()[z+4][y][x] == opposition && grid.getBoard()[z+5][y][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == opposition && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x] == opposition && grid.getBoard()[z+2][y][x] == opposition && grid.getBoard()[z+3][y][x] == opposition && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == opposition && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x] == opposition && grid.getBoard()[z+2][y][x] == opposition && grid.getBoard()[z+3][y][x] == neutral && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == opposition && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x] == opposition && grid.getBoard()[z+2][y][x] == neutral &&
+                            grid.getBoard()[z+3][y][x] == neutral && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x] == neutral && b[z+2][y][x] == neutral && b[z+3][y][x] == neutral && b[z+4][y][x] == neutral && b[z+5][y][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x] == neutral && grid.getBoard()[z+2][y][x] == neutral &&
+                            grid.getBoard()[z+3][y][x] == neutral && grid.getBoard()[z+4][y][x] == neutral && grid.getBoard()[z+5][y][x] == neutral)
                         score-=1;
 
                 }
@@ -264,36 +178,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == color && b[z][y+4][x] == color && b[z][y+5][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == color && grid.getBoard()[z][y+2][x] == color &&
+                            grid.getBoard()[z][y+3][x] == color && grid.getBoard()[z][y+4][x] == color && grid.getBoard()[z][y+5][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == color && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == color && grid.getBoard()[z][y+2][x] == color &&
+                            grid.getBoard()[z][y+3][x] == color && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == color && grid.getBoard()[z][y+2][x] == color &&
+                            grid.getBoard()[z][y+3][x] == neutral && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == color && grid.getBoard()[z][y+2][x] == neutral &&
+                            grid.getBoard()[z][y+3][x] == neutral && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == neutral && grid.getBoard()[z][y+2][x] == neutral &&
+                            grid.getBoard()[z][y+3][x] == neutral && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == opposition && b[z][y+4][x] == opposition && b[z][y+5][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x] == opposition && grid.getBoard()[z][y+2][x] == opposition &&
+                            grid.getBoard()[z][y+3][x] == opposition && grid.getBoard()[z][y+4][x] == opposition && grid.getBoard()[z][y+5][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == opposition && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x] == opposition && grid.getBoard()[z][y+2][x] == opposition &&
+                            grid.getBoard()[z][y+3][x] == opposition && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x] == opposition && grid.getBoard()[z][y+2][x] == opposition &&
+                            grid.getBoard()[z][y+3][x] == neutral && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x] == opposition && grid.getBoard()[z][y+2][x] == neutral &&
+                            grid.getBoard()[z][y+3][x] == neutral && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == neutral && b[z][y+2][x] == neutral && b[z][y+3][x] == neutral && b[z][y+4][x] == neutral && b[z][y+5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x] == neutral && grid.getBoard()[z][y+2][x] == neutral &&
+                            grid.getBoard()[z][y+3][x] == neutral && grid.getBoard()[z][y+4][x] == neutral && grid.getBoard()[z][y+5][x] == neutral)
                         score-=1;
 
                 }
@@ -307,36 +231,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == color && b[z+4][y][x+4] == color && b[z+5][y][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x+1] == color && grid.getBoard()[z+2][y][x+2] == color &&
+                            grid.getBoard()[z+3][y][x+3] == color && grid.getBoard()[z+4][y][x+4] == color && grid.getBoard()[z+5][y][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == color && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x+1] == color && grid.getBoard()[z+2][y][x+2] == color &&
+                            grid.getBoard()[z+3][y][x+3] == color && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == color && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x+1] == color && grid.getBoard()[z+2][y][x+2] == color &&
+                            grid.getBoard()[z+3][y][x+3] == neutral && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == color && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x+1] == color && grid.getBoard()[z+2][y][x+2] == neutral &&
+                            grid.getBoard()[z+3][y][x+3] == neutral && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y][x+1] == neutral && grid.getBoard()[z+2][y][x+2] == neutral &&
+                            grid.getBoard()[z+3][y][x+3] == neutral && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == opposition && b[z+5][y][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x+1] == opposition && grid.getBoard()[z+2][y][x+2] == opposition &&
+                            grid.getBoard()[z+3][y][x+3] == opposition && grid.getBoard()[z+4][y][x+4] == opposition && grid.getBoard()[z+5][y][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == opposition && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x+1] == opposition && grid.getBoard()[z+2][y][x+2] == opposition &&
+                            grid.getBoard()[z+3][y][x+3] == opposition && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == opposition && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x+1] == opposition && grid.getBoard()[z+2][y][x+2] == opposition &&
+                            grid.getBoard()[z+3][y][x+3] == neutral && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == opposition && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x+1] == opposition && grid.getBoard()[z+2][y][x+2] == neutral &&
+                            grid.getBoard()[z+3][y][x+3] == neutral && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y][x+1] == neutral && b[z+2][y][x+2] == neutral && b[z+3][y][x+3] == neutral && b[z+4][y][x+4] == neutral && b[z+5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y][x+1] == neutral && grid.getBoard()[z+2][y][x+2] == neutral &&
+                            grid.getBoard()[z+3][y][x+3] == neutral && grid.getBoard()[z+4][y][x+4] == neutral && grid.getBoard()[z+5][y][x+5] == neutral)
                         score-=1;
 
                 }
@@ -350,36 +284,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == color && b[z-4][y][x+4] == color && b[z-5][y][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y][x+1] == color && grid.getBoard()[z-2][y][x+2] == color &&
+                            grid.getBoard()[z-3][y][x+3] == color && grid.getBoard()[z-4][y][x+4] == color && grid.getBoard()[z-5][y][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == color && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y][x+1] == color && grid.getBoard()[z-2][y][x+2] == color &&
+                            grid.getBoard()[z-3][y][x+3] == color && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == color && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y][x+1] == color && grid.getBoard()[z-2][y][x+2] == color &&
+                            grid.getBoard()[z-3][y][x+3] == neutral && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == color && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y][x+1] == color && grid.getBoard()[z-2][y][x+2] == neutral &&
+                            grid.getBoard()[z-3][y][x+3] == neutral && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y][x+1] == neutral && grid.getBoard()[z-2][y][x+2] == neutral &&
+                            grid.getBoard()[z-3][y][x+3] == neutral && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == opposition && b[z-5][y][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y][x+1] == opposition && grid.getBoard()[z-2][y][x+2] == opposition &&
+                            grid.getBoard()[z-3][y][x+3] == opposition && grid.getBoard()[z-4][y][x+4] == opposition && grid.getBoard()[z-5][y][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == opposition && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y][x+1] == opposition && grid.getBoard()[z-2][y][x+2] == opposition &&
+                            grid.getBoard()[z-3][y][x+3] == opposition && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == opposition && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y][x+1] == opposition && grid.getBoard()[z-2][y][x+2] == opposition &&
+                            grid.getBoard()[z-3][y][x+3] == neutral && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == opposition && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y][x+1] == opposition && grid.getBoard()[z-2][y][x+2] == neutral &&
+                            grid.getBoard()[z-3][y][x+3] == neutral && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y][x+1] == neutral && b[z-2][y][x+2] == neutral && b[z-3][y][x+3] == neutral && b[z-4][y][x+4] == neutral && b[z-5][y][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y][x+1] == neutral && grid.getBoard()[z-2][y][x+2] == neutral &&
+                            grid.getBoard()[z-3][y][x+3] == neutral && grid.getBoard()[z-4][y][x+4] == neutral && grid.getBoard()[z-5][y][x+5] == neutral)
                         score-=1;
 
                 }
@@ -393,36 +337,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == color && b[z][y+4][x+4] == color && b[z][y+5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x+1] == color && grid.getBoard()[z][y+2][x+2] == color &&
+                            grid.getBoard()[z][y+3][x+3] == color && grid.getBoard()[z][y+4][x+4] == color && grid.getBoard()[z][y+5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == color && b[z][y+3][x+3] == color && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x+1] == color && grid.getBoard()[z][y+2][x+2] == color &&
+                            grid.getBoard()[z][y+3][x+3] == color && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x] == color && b[z][y+2][x] == color && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == color && grid.getBoard()[z][y+2][x] == color &&
+                            grid.getBoard()[z][y+3][x+3] == neutral && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == color && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x+1] == color && grid.getBoard()[z][y+2][x+2] == neutral &&
+                            grid.getBoard()[z][y+3][x+3] == neutral && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x+1] == neutral && grid.getBoard()[z][y+2][x+2] == neutral &&
+                            grid.getBoard()[z][y+3][x+3] == neutral && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == opposition && b[z][y+5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x+1] == opposition && grid.getBoard()[z][y+2][x+2] == opposition &&
+                            grid.getBoard()[z][y+3][x+3] == opposition && grid.getBoard()[z][y+4][x+4] == opposition && grid.getBoard()[z][y+5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == opposition && b[z][y+3][x+3] == opposition && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x+1] == opposition && grid.getBoard()[z][y+2][x+2] == opposition &&
+                            grid.getBoard()[z][y+3][x+3] == opposition && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x] == opposition && b[z][y+2][x] == opposition && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x] == opposition && grid.getBoard()[z][y+2][x] == opposition &&
+                            grid.getBoard()[z][y+3][x+3] == neutral && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == opposition && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x+1] == opposition && grid.getBoard()[z][y+2][x+2] == neutral &&
+                            grid.getBoard()[z][y+3][x+3] == neutral && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y+1][x+1] == neutral && b[z][y+2][x+2] == neutral && b[z][y+3][x+3] == neutral && b[z][y+4][x+4] == neutral && b[z][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y+1][x+1] == neutral && grid.getBoard()[z][y+2][x+2] == neutral &&
+                            grid.getBoard()[z][y+3][x+3] == neutral && grid.getBoard()[z][y+4][x+4] == neutral && grid.getBoard()[z][y+5][x+5] == neutral)
                         score-=1;
                 }
             }
@@ -435,36 +389,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == color && b[z][y-5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x+1] == color && grid.getBoard()[z][y-2][x+2] == color &&
+                            grid.getBoard()[z][y-3][x+3] == color && grid.getBoard()[z][y-4][x+4] == color && grid.getBoard()[z][y-5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == color && b[z][y-3][x+3] == color && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x+1] == color && grid.getBoard()[z][y-2][x+2] == color &&
+                            grid.getBoard()[z][y-3][x+3] == color && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x] == color && b[z][y-2][x] == color && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x] == color && grid.getBoard()[z][y-2][x] == color &&
+                            grid.getBoard()[z][y-3][x+3] == neutral && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == color && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x+1] == color && grid.getBoard()[z][y-2][x+2] == neutral &&
+                            grid.getBoard()[z][y-3][x+3] == neutral && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x+1] == neutral && grid.getBoard()[z][y-2][x+2] == neutral &&
+                            grid.getBoard()[z][y-3][x+3] == neutral && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == opposition && b[z][y-5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y-1][x+1] == opposition && grid.getBoard()[z][y-2][x+2] == opposition &&
+                            grid.getBoard()[z][y-3][x+3] == opposition && grid.getBoard()[z][y-4][x+4] == opposition && grid.getBoard()[z][y-5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == opposition && b[z][y-3][x+3] == opposition && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y-1][x+1] == opposition && grid.getBoard()[z][y-2][x+2] == opposition &&
+                            grid.getBoard()[z][y-3][x+3] == opposition && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x] == opposition && b[z][y-2][x] == opposition && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y-1][x] == opposition && grid.getBoard()[z][y-2][x] == opposition &&
+                            grid.getBoard()[z][y-3][x+3] == neutral && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == opposition && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y-1][x+1] == opposition && grid.getBoard()[z][y-2][x+2] == neutral &&
+                            grid.getBoard()[z][y-3][x+3] == neutral && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z][y-1][x+1] == neutral && b[z][y-2][x+2] == neutral && b[z][y-3][x+3] == neutral && b[z][y-4][x+4] == neutral && b[z][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z][y-1][x+1] == neutral && grid.getBoard()[z][y-2][x+2] == neutral &&
+                            grid.getBoard()[z][y-3][x+3] == neutral && grid.getBoard()[z][y-4][x+4] == neutral && grid.getBoard()[z][y-5][x+5] == neutral)
                         score-=1;
 
                 }
@@ -478,36 +442,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == color && b[z-4][y-4][x] == color && b[z-5][y-5][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x] == color && grid.getBoard()[z-2][y-2][x] == color &&
+                            grid.getBoard()[z-3][y-3][x] == color && grid.getBoard()[z-4][y-4][x] == color && grid.getBoard()[z-5][y-5][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == color && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x] == color && grid.getBoard()[z-2][y-2][x] == color &&
+                            grid.getBoard()[z-3][y-3][x] == color && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == color && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x] == color && grid.getBoard()[z-2][y-2][x] == color &&
+                            grid.getBoard()[z-3][y-3][x] == neutral && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == color && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x] == color && grid.getBoard()[z-2][y-2][x] == neutral &&
+                            grid.getBoard()[z-3][y-3][x] == neutral && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x] == neutral && grid.getBoard()[z-2][y-2][x] == neutral &&
+                            grid.getBoard()[z-3][y-3][x] == neutral && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == opposition && b[z-5][y-5][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x] == opposition && grid.getBoard()[z-2][y-2][x] == opposition &&
+                            grid.getBoard()[z-3][y-3][x] == opposition && grid.getBoard()[z-4][y-4][x] == opposition && grid.getBoard()[z-5][y-5][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == opposition && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x] == opposition && grid.getBoard()[z-2][y-2][x] == opposition &&
+                            grid.getBoard()[z-3][y-3][x] == opposition && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == opposition && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x] == opposition && grid.getBoard()[z-2][y-2][x] == opposition &&
+                            grid.getBoard()[z-3][y-3][x] == neutral && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == opposition && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x] == opposition && grid.getBoard()[z-2][y-2][x] == neutral &&
+                            grid.getBoard()[z-3][y-3][x] == neutral && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x] == neutral && b[z-2][y-2][x] == neutral && b[z-3][y-3][x] == neutral && b[z-4][y-4][x] == neutral && b[z-5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x] == neutral && grid.getBoard()[z-2][y-2][x] == neutral &&
+                            grid.getBoard()[z-3][y-3][x] == neutral && grid.getBoard()[z-4][y-4][x] == neutral && grid.getBoard()[z-5][y-5][x] == neutral)
                         score-=1;
                 }
             }
@@ -520,36 +494,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color && b[z+3][y-3][x] == color && b[z+4][y-4][x] == color && b[z+5][y-5][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x] == color && grid.getBoard()[z+2][y-2][x] == color &&
+                            grid.getBoard()[z+3][y-3][x] == color && grid.getBoard()[z+4][y-4][x] == color && grid.getBoard()[z+5][y-5][x] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color && b[z+3][y-3][x] == color && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x] == color && grid.getBoard()[z+2][y-2][x] == color &&
+                            grid.getBoard()[z+3][y-3][x] == color && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == color && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x] == color && grid.getBoard()[z+2][y-2][x] == color &&
+                            grid.getBoard()[z+3][y-3][x] == neutral && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == color && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x] == color && grid.getBoard()[z+2][y-2][x] == neutral &&
+                            grid.getBoard()[z+3][y-3][x] == neutral && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x] == neutral && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x] == neutral && grid.getBoard()[z+2][y-2][x] == neutral &&
+                            grid.getBoard()[z+3][y-3][x] == neutral && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition && b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == opposition && b[z+5][y-5][x] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x] == opposition && grid.getBoard()[z+2][y-2][x] == opposition &&
+                            grid.getBoard()[z+3][y-3][x] == opposition && grid.getBoard()[z+4][y-4][x] == opposition && grid.getBoard()[z+5][y-5][x] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition && b[z+3][y-3][x] == opposition && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x] == opposition && grid.getBoard()[z+2][y-2][x] == opposition &&
+                            grid.getBoard()[z+3][y-3][x] == opposition && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == opposition && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x] == opposition && grid.getBoard()[z+2][y-2][x] == opposition &&
+                            grid.getBoard()[z+3][y-3][x] == neutral && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == opposition && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x] == opposition && grid.getBoard()[z+2][y-2][x] == neutral &&
+                            grid.getBoard()[z+3][y-3][x] == neutral && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x] == neutral && b[z+2][y-2][x] == neutral && b[z+3][y-3][x] == neutral && b[z+4][y-4][x] == neutral && b[z+5][y-5][x] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x] == neutral && grid.getBoard()[z+2][y-2][x] == neutral &&
+                            grid.getBoard()[z+3][y-3][x] == neutral && grid.getBoard()[z+4][y-4][x] == neutral && grid.getBoard()[z+5][y-5][x] == neutral)
                         score-=1;
 
                 }
@@ -563,36 +547,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == color && b[z-5][y-5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x+1] == color && grid.getBoard()[z-2][y-2][x+2] == color &&
+                            grid.getBoard()[z-3][y-3][x+3] == color && grid.getBoard()[z-4][y-4][x+4] == color && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == color && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x+1] == color && grid.getBoard()[z-2][y-2][x+2] == color &&
+                            grid.getBoard()[z-3][y-3][x+3] == color && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == color && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x+1] == color && grid.getBoard()[z-2][y-2][x+2] == color &&
+                            grid.getBoard()[z-3][y-3][x+3] == neutral && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == color && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x+1] == color && grid.getBoard()[z-2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y-3][x+3] == neutral && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y-1][x+1] == neutral && grid.getBoard()[z-2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y-3][x+3] == neutral && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == opposition && b[z-5][y-5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x+1] == opposition && grid.getBoard()[z-2][y-2][x+2] == opposition &&
+                            grid.getBoard()[z-3][y-3][x+3] == opposition && grid.getBoard()[z-4][y-4][x+4] == opposition && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == opposition && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x+1] == opposition && grid.getBoard()[z-2][y-2][x+2] == opposition &&
+                            grid.getBoard()[z-3][y-3][x+3] == opposition && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == opposition && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x+1] == opposition && grid.getBoard()[z-2][y-2][x+2] == opposition &&
+                            grid.getBoard()[z-3][y-3][x+3] == neutral && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == opposition && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x+1] == opposition && grid.getBoard()[z-2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y-3][x+3] == neutral && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y-1][x+1] == neutral && b[z-2][y-2][x+2] == neutral && b[z-3][y-3][x+3] == neutral && b[z-4][y-4][x+4] == neutral && b[z-5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y-1][x+1] == neutral && grid.getBoard()[z-2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y-3][x+3] == neutral && grid.getBoard()[z-4][y-4][x+4] == neutral && grid.getBoard()[z-5][y-5][x+5] == neutral)
                         score-=1;
 
                 }
@@ -606,36 +600,46 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == color && b[z-5][y+5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y+1][x+1] == color && grid.getBoard()[z-2][y+2][x+2] == color &&
+                            grid.getBoard()[z-3][y+3][x+3] == color && grid.getBoard()[z-4][y+4][x+4] == color && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == color && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y+1][x+1] == color && grid.getBoard()[z-2][y+2][x+2] == color &&
+                            grid.getBoard()[z-3][y+3][x+3] == color && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == color && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y+1][x+1] == color && grid.getBoard()[z-2][y+2][x+2] == color &&
+                            grid.getBoard()[z-3][y+3][x+3] == neutral && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == color && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y+1][x+1] == color && grid.getBoard()[z-2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y+3][x+3] == neutral && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z-1][y+1][x+1] == neutral && grid.getBoard()[z-2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y+3][x+3] == neutral && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == opposition && b[z-5][y+5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y+1][x+1] == opposition && grid.getBoard()[z-2][y+2][x+2] == opposition &&
+                            grid.getBoard()[z-3][y+3][x+3] == opposition && grid.getBoard()[z-4][y+4][x+4] == opposition && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == opposition && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y+1][x+1] == opposition && grid.getBoard()[z-2][y+2][x+2] == opposition &&
+                            grid.getBoard()[z-3][y+3][x+3] == opposition && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == opposition && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y+1][x+1] == opposition && grid.getBoard()[z-2][y+2][x+2] == opposition &&
+                            grid.getBoard()[z-3][y+3][x+3] == neutral && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == opposition && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y+1][x+1] == opposition && grid.getBoard()[z-2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y+3][x+3] == neutral && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z-1][y+1][x+1] == neutral && b[z-2][y+2][x+2] == neutral && b[z-3][y+3][x+3] == neutral && b[z-4][y+4][x+4] == neutral && b[z-5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z-1][y+1][x+1] == neutral && grid.getBoard()[z-2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z-3][y+3][x+3] == neutral && grid.getBoard()[z-4][y+4][x+4] == neutral && grid.getBoard()[z-5][y+5][x+5] == neutral)
                         score-=1;
 
                 }
@@ -643,94 +647,115 @@ public class P3_AI_SE_AC
         }
 
         //--------V-WTF-AM-I-DOING-------//
-        for(int z=0; z+5 > 0; z++)
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
         {
-            for(int y=0; y+5 > 0; y++)
+            for(int y=0; y+5 < Board.Y_SIZE; y++)
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == color && b[z+5][y+5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y+1][x+1] == color && grid.getBoard()[z+2][y+2][x+2] == color &&
+                            grid.getBoard()[z+3][y+3][x+3] == color && grid.getBoard()[z+4][y+4][x+4] == color && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == color && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y+1][x+1] == color && grid.getBoard()[z+2][y+2][x+2] == color &&
+                            grid.getBoard()[z+3][y+3][x+3] == color && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == color && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y+1][x+1] == color && grid.getBoard()[z+2][y+2][x+2] == color &&
+                            grid.getBoard()[z+3][y+3][x+3] == neutral && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == color && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y+1][x+1] == color && grid.getBoard()[z+2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y+3][x+3] == neutral && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y+1][x+1] == neutral && grid.getBoard()[z+2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y+3][x+3] == neutral && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == opposition && b[z+5][y+5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y+1][x+1] == opposition && grid.getBoard()[z+2][y+2][x+2] == opposition &&
+                            grid.getBoard()[z+3][y+3][x+3] == opposition && grid.getBoard()[z+4][y+4][x+4] == opposition && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == opposition && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y+1][x+1] == opposition && grid.getBoard()[z+2][y+2][x+2] == opposition &&
+                            grid.getBoard()[z+3][y+3][x+3] == opposition && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == opposition && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y+1][x+1] == opposition && grid.getBoard()[z+2][y+2][x+2] == opposition &&
+                            grid.getBoard()[z+3][y+3][x+3] == neutral && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == opposition && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y+1][x+1] == opposition && grid.getBoard()[z+2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y+3][x+3] == neutral && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y+1][x+1] == neutral && b[z+2][y+2][x+2] == neutral && b[z+3][y+3][x+3] == neutral && b[z+4][y+4][x+4] == neutral && b[z+5][y+5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y+1][x+1] == neutral && grid.getBoard()[z+2][y+2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y+3][x+3] == neutral && grid.getBoard()[z+4][y+4][x+4] == neutral && grid.getBoard()[z+5][y+5][x+5] == neutral)
                         score-=1;
                 }
             }
         }
 
         //--------V-WTF-AM-I-DOING-2-----//
-        for(int z=0; z+5 > 0; z++)
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
         {
             for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == color && b[z+5][y-5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x+1] == color && grid.getBoard()[z+2][y-2][x+2] == color &&
+                            grid.getBoard()[z+3][y-3][x+3] == color && grid.getBoard()[z+4][y-4][x+4] == color && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score+=5;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == color && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x+1] == color && grid.getBoard()[z+2][y-2][x+2] == color &&
+                            grid.getBoard()[z+3][y-3][x+3] == color && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score+=4;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == color && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x+1] == color && grid.getBoard()[z+2][y-2][x+2] == color &&
+                            grid.getBoard()[z+3][y-3][x+3] == neutral && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score+=3;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == color && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x+1] == color && grid.getBoard()[z+2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y-3][x+3] == neutral && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score+=2;
 
-                    else if(b[z][y][x] == color && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == color && grid.getBoard()[z+1][y-1][x+1] == neutral && grid.getBoard()[z+2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y-3][x+3] == neutral && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score+=1;
 
 
                     //----------------------------------OPPOSITION--------------------------------------------//
-                    if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == opposition && b[z+5][y-5][x+5] == neutral)
+                    if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x+1] == opposition && grid.getBoard()[z+2][y-2][x+2] == opposition &&
+                            grid.getBoard()[z+3][y-3][x+3] == opposition && grid.getBoard()[z+4][y-4][x+4] == opposition && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score-=5;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == opposition && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x+1] == opposition && grid.getBoard()[z+2][y-2][x+2] == opposition &&
+                            grid.getBoard()[z+3][y-3][x+3] == opposition && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score-=4;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == opposition && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x+1] == opposition && grid.getBoard()[z+2][y-2][x+2] == opposition &&
+                            grid.getBoard()[z+3][y-3][x+3] == neutral && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score-=3;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == opposition && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x+1] == opposition && grid.getBoard()[z+2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y-3][x+3] == neutral && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score-=2;
 
-                    else if(b[z][y][x] == opposition && b[z+1][y-1][x+1] == neutral && b[z+2][y-2][x+2] == neutral && b[z+3][y-3][x+3] == neutral && b[z+4][y-4][x+4] == neutral && b[z+5][y-5][x+5] == neutral)
+                    else if(grid.getBoard()[z][y][x] == opposition && grid.getBoard()[z+1][y-1][x+1] == neutral && grid.getBoard()[z+2][y-2][x+2] == neutral &&
+                            grid.getBoard()[z+3][y-3][x+3] == neutral && grid.getBoard()[z+4][y-4][x+4] == neutral && grid.getBoard()[z+5][y-5][x+5] == neutral)
                         score-=1;
+
                 }
             }
         }
+
         return score;
     }
-    
-    private int Grader(Board grid, Move move, char color)
+
+    private int grader(Board grid, Move move, char color)
     {
-        char[][][] b = grid.getBoard();
         int score = 0;
 
         //----------Horizontal-LEFT-RIGHT---------//
@@ -740,20 +765,31 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y][move.getX()+1] == color && b[move.getZ()][y][move.getX()+2] == color && b[move.getZ()][y][move.getX()+3] == color && b[move.getZ()][y][move.getX()+4] == color && b[move.getZ()][y][move.getX()+5] == neutral)
-                        score+=5;
+                    if(move.getZ() < 8 && move.getX() < 8)
+                    {
+                        if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y][move.getX() + 1] == color && grid.getBoard()[move.getZ()][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ()][y][move.getX() + 3] == color && grid.getBoard()[move.getZ()][y][move.getX() + 4] == color && grid.getBoard()[move.getZ()][y][move.getX() + 5] == neutral)
+                            score += 5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y][move.getX()+1] == color && b[move.getZ()][y][move.getX()+2] == color && b[move.getZ()][y][move.getX()+3] == color && b[move.getZ()][y][move.getX()+4] == neutral && b[move.getZ()][y][move.getX()+5] == neutral)
-                        score+=4;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y][move.getX() + 1] == color && grid.getBoard()[move.getZ()][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ()][y][move.getX() + 3] == color && grid.getBoard()[move.getZ()][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 5] == neutral)
+                            score += 4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y][move.getX()+1] == color && b[move.getZ()][y][move.getX()+2] == color && b[move.getZ()][y][move.getX()+3] == neutral && b[move.getZ()][y][move.getX()+4] == neutral && b[move.getZ()][y][move.getX()+5] == neutral)
-                        score+=3;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y][move.getX() + 1] == color && grid.getBoard()[move.getZ()][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ()][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 5] == neutral)
+                            score += 3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y][move.getX()+1] == color && b[move.getZ()][y][move.getX()+2] == neutral && b[move.getZ()][y][move.getX()+3] == neutral && b[move.getZ()][y][move.getX()+4] == neutral && b[move.getZ()][y][move.getX()+5] == neutral)
-                        score+=2;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y][move.getX() + 1] == color && grid.getBoard()[move.getZ()][y][move.getX() + 2] == neutral &&
+                                grid.getBoard()[move.getZ()][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 5] == neutral)
+                            score += 2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y][move.getX()+1] == neutral && b[move.getZ()][y][move.getX()+2] == neutral && b[move.getZ()][y][move.getX()+3] == neutral && b[move.getZ()][y][move.getX()+4] == neutral && b[move.getZ()][y][move.getX()+5] == neutral)
-                        score+=1;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y][move.getX() + 1] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 2] == neutral &&
+                                grid.getBoard()[move.getZ()][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ()][y][move.getX() + 5] == neutral)
+                            score += 1;
+
+                        else
+                            score += 0;
+                    }
 
                 }
             }
@@ -767,21 +803,32 @@ public class P3_AI_SE_AC
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
 
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color && b[move.getZ()+3][y][move.getX()] == color && b[move.getZ()+4][y][move.getX()] == color && b[move.getZ()+5][y][move.getX()] == neutral)
-                        score+=5;
+                    if(move.getZ() < 8 && move.getX() < 8)
+                    {
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color && b[move.getZ()+3][y][move.getX()] == color && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
-                        score+=4;
+                        if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX()] == color && grid.getBoard()[move.getZ() + 2][y][move.getX()] == color &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX()] == color && grid.getBoard()[move.getZ() + 4][y][move.getX()] == color && grid.getBoard()[move.getZ() + 5][y][move.getX()] == neutral)
+                            score += 5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == color && b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
-                        score+=3;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX()] == color && grid.getBoard()[move.getZ() + 2][y][move.getX()] == color &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX()] == color && grid.getBoard()[move.getZ() + 4][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX()] == neutral)
+                            score += 4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == color && b[move.getZ()+2][y][move.getX()] == neutral && b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
-                        score+=2;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX()] == color && grid.getBoard()[move.getZ() + 2][y][move.getX()] == color &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 4][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX()] == neutral)
+                            score += 3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()] == neutral && b[move.getZ()+2][y][move.getX()] == neutral && b[move.getZ()+3][y][move.getX()] == neutral && b[move.getZ()+4][y][move.getX()] == neutral && b[move.getZ()+5][y][move.getX()] == neutral)
-                        score+=1;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX()] == color && grid.getBoard()[move.getZ() + 2][y][move.getX()] == neutral &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 4][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX()] == neutral)
+                            score += 2;
 
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 2][y][move.getX()] == neutral &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 4][y][move.getX()] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX()] == neutral)
+                            score += 1;
+
+                        else
+                            score += 0;
+                    }
 
                 }
             }
@@ -794,26 +841,31 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()] == color && b[move.getZ()][y+2][move.getX()] == color &&
-                            b[move.getZ()][y+3][move.getX()] == color && b[move.getZ()][y+4][move.getX()] == color && b[move.getZ()][y+5][move.getX()] == neutral)
-                        score+=5;
+                    if(move.getZ() < 8 && move.getX() < 8)
+                    {
+                        if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y + 1][move.getX()] == color && grid.getBoard()[move.getZ()][y + 2][move.getX()] == color &&
+                                grid.getBoard()[move.getZ()][y + 3][move.getX()] == color && grid.getBoard()[move.getZ()][y + 4][move.getX()] == color && grid.getBoard()[move.getZ()][y + 5][move.getX()] == neutral)
+                            score += 5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()] == color && b[move.getZ()][y+2][move.getX()] == color &&
-                            b[move.getZ()][y+3][move.getX()] == color && b[move.getZ()][y+4][move.getX()] == neutral && b[move.getZ()][y+5][move.getX()] == neutral)
-                        score+=4;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y + 1][move.getX()] == color && grid.getBoard()[move.getZ()][y + 2][move.getX()] == color &&
+                                grid.getBoard()[move.getZ()][y + 3][move.getX()] == color && grid.getBoard()[move.getZ()][y + 4][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 5][move.getX()] == neutral)
+                            score += 4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()] == color && b[move.getZ()][y+2][move.getX()] == color &&
-                            b[move.getZ()][y+3][move.getX()] == neutral && b[move.getZ()][y+4][move.getX()] == neutral && b[move.getZ()][y+5][move.getX()] == neutral)
-                        score+=3;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y + 1][move.getX()] == color && grid.getBoard()[move.getZ()][y + 2][move.getX()] == color &&
+                                grid.getBoard()[move.getZ()][y + 3][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 4][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 5][move.getX()] == neutral)
+                            score += 3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()] == color && b[move.getZ()][y+2][move.getX()] == neutral &&
-                            b[move.getZ()][y+3][move.getX()] == neutral && b[move.getZ()][y+4][move.getX()] == neutral && b[move.getZ()][y+5][move.getX()] == neutral)
-                        score+=2;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y + 1][move.getX()] == color && grid.getBoard()[move.getZ()][y + 2][move.getX()] == neutral &&
+                                grid.getBoard()[move.getZ()][y + 3][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 4][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 5][move.getX()] == neutral)
+                            score += 2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()] == neutral && b[move.getZ()][y+2][move.getX()] == neutral &&
-                            b[move.getZ()][y+3][move.getX()] == neutral && b[move.getZ()][y+4][move.getX()] == neutral && b[move.getZ()][y+5][move.getX()] == neutral)
-                        score+=1;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y + 1][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 2][move.getX()] == neutral &&
+                                grid.getBoard()[move.getZ()][y + 3][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 4][move.getX()] == neutral && grid.getBoard()[move.getZ()][y + 5][move.getX()] == neutral)
+                            score += 1;
 
+                        else
+                            score += 0;
+                    }
 
                 }
             }
@@ -826,26 +878,32 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()+1] == color && b[move.getZ()+2][y][move.getX()+2] == color &&
-                            b[move.getZ()+3][y][move.getX()+3] == color && b[move.getZ()+4][y][move.getX()+4] == color && b[move.getZ()+5][y][move.getX()+5] == neutral)
-                        score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()+1] == color && b[move.getZ()+2][y][move.getX()+2] == color &&
-                            b[move.getZ()+3][y][move.getX()+3] == color && b[move.getZ()+4][y][move.getX()+4] == neutral && b[move.getZ()+5][y][move.getX()+5] == neutral)
-                        score+=4;
+                    if(move.getZ() < 8 && move.getX() < 8)
+                    {
+                        if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() + 2][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX() + 3] == color && grid.getBoard()[move.getZ() + 4][y][move.getX() + 4] == color && grid.getBoard()[move.getZ() + 5][y][move.getX() + 5] == neutral)
+                            score += 5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()+1] == color && b[move.getZ()+2][y][move.getX()+2] == color &&
-                            b[move.getZ()+3][y][move.getX()+3] == neutral && b[move.getZ()+4][y][move.getX()+4] == neutral && b[move.getZ()+5][y][move.getX()+5] == neutral)
-                        score+=3;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() + 2][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX() + 3] == color && grid.getBoard()[move.getZ() + 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX() + 5] == neutral)
+                            score += 4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()+1] == color && b[move.getZ()+2][y][move.getX()+2] == neutral &&
-                            b[move.getZ()+3][y][move.getX()+3] == neutral && b[move.getZ()+4][y][move.getX()+4] == neutral && b[move.getZ()+5][y][move.getX()+5] == neutral)
-                        score+=2;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() + 2][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ() + 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX() + 5] == neutral)
+                            score += 3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y][move.getX()+1] == neutral && b[move.getZ()+2][y][move.getX()+2] == neutral &&
-                            b[move.getZ()+3][y][move.getX()+3] == neutral && b[move.getZ()+4][y][move.getX()+4] == neutral && b[move.getZ()+5][y][move.getX()+5] == neutral)
-                        score+=1;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() + 2][y][move.getX() + 2] == neutral &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ() + 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX() + 5] == neutral)
+                            score += 2;
 
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() + 1][y][move.getX() + 1] == neutral && grid.getBoard()[move.getZ() + 2][y][move.getX() + 2] == neutral &&
+                                grid.getBoard()[move.getZ() + 3][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ() + 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() + 5][y][move.getX() + 5] == neutral)
+                            score += 1;
+
+                        else
+                            score += 0;
+                    }
 
                 }
             }
@@ -858,57 +916,64 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y][move.getX()+1] == color && b[move.getZ()-2][y][move.getX()+2] == color &&
-                            b[move.getZ()-3][y][move.getX()+3] == color && b[move.getZ()-4][y][move.getX()+4] == color && b[move.getZ()-5][y][move.getX()+5] == neutral)
-                        score+=5;
+                    if(move.getZ() < 8 && move.getX() < 8)
+                    {
+                        if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() - 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() - 2][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ() - 3][y][move.getX() + 3] == color && grid.getBoard()[move.getZ() - 4][y][move.getX() + 4] == color && grid.getBoard()[move.getZ() - 5][y][move.getX() + 5] == neutral)
+                            score += 5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y][move.getX()+1] == color && b[move.getZ()-2][y][move.getX()+2] == color &&
-                            b[move.getZ()-3][y][move.getX()+3] == color && b[move.getZ()-4][y][move.getX()+4] == neutral && b[move.getZ()-5][y][move.getX()+5] == neutral)
-                        score+=4;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() - 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() - 2][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ() - 3][y][move.getX() + 3] == color && grid.getBoard()[move.getZ() - 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() - 5][y][move.getX() + 5] == neutral)
+                            score += 4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y][move.getX()+1] == color && b[move.getZ()-2][y][move.getX()+2] == color &&
-                            b[move.getZ()-3][y][move.getX()+3] == neutral && b[move.getZ()-4][y][move.getX()+4] == neutral && b[move.getZ()-5][y][move.getX()+5] == neutral)
-                        score+=3;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() - 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() - 2][y][move.getX() + 2] == color &&
+                                grid.getBoard()[move.getZ() - 3][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ() - 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() - 5][y][move.getX() + 5] == neutral)
+                            score += 3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y][move.getX()+1] == color && b[move.getZ()-2][y][move.getX()+2] == neutral &&
-                            b[move.getZ()-3][y][move.getX()+3] == neutral && b[move.getZ()-4][y][move.getX()+4] == neutral && b[move.getZ()-5][y][move.getX()+5] == neutral)
-                        score+=2;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() - 1][y][move.getX() + 1] == color && grid.getBoard()[move.getZ() - 2][y][move.getX() + 2] == neutral &&
+                                grid.getBoard()[move.getZ() - 3][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ() - 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() - 5][y][move.getX() + 5] == neutral)
+                            score += 2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y][move.getX()+1] == neutral && b[move.getZ()-2][y][move.getX()+2] == neutral &&
-                            b[move.getZ()-3][y][move.getX()+3] == neutral && b[move.getZ()-4][y][move.getX()+4] == neutral && b[move.getZ()-5][y][move.getX()+5] == neutral)
-                        score+=1;
+                        else if (grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ() - 1][y][move.getX() + 1] == neutral && grid.getBoard()[move.getZ() - 2][y][move.getX() + 2] == neutral &&
+                                grid.getBoard()[move.getZ() - 3][y][move.getX() + 3] == neutral && grid.getBoard()[move.getZ() - 4][y][move.getX() + 4] == neutral && grid.getBoard()[move.getZ() - 5][y][move.getX() + 5] == neutral)
+                            score += 1;
 
-
+                        else
+                            score += 0;
+                    }
                 }
             }
         }
 
-        //--------V-Diagonal-UP-DOWN-WALL-1----//
+        /*//--------V-Diagonal-UP-DOWN-WALL-1----//
         for(int z=0; z < Board.Z_SIZE; z++)
         {
             for(int y=0; y+5 < Board.Y_SIZE; y++)
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()+1] == color && b[move.getZ()][y+2][move.getX()+2] == color &&
-                            b[move.getZ()][y+3][move.getX()+3] == color && b[move.getZ()][y+4][move.getX()+4] == color && b[move.getZ()][y+5][move.getX()+5] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()][y+3][move.getX()+3] == color && grid.getBoard()[move.getZ()][y+4][move.getX()+4] == color && grid.getBoard()[move.getZ()][y+5][move.getX()+5] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()+1] == color && b[move.getZ()][y+2][move.getX()+2] == color &&
-                            b[move.getZ()][y+3][move.getX()+3] == color && b[move.getZ()][y+4][move.getX()+4] == neutral && b[move.getZ()][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()][y+3][move.getX()+3] == color && grid.getBoard()[move.getZ()][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y+5][move.getX()+5] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()] == color && b[move.getZ()][y+2][move.getX()] == color &&
-                            b[move.getZ()][y+3][move.getX()+3] == neutral && b[move.getZ()][y+4][move.getX()+4] == neutral && b[move.getZ()][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y+1][move.getX()] == color && grid.getBoard()[move.getZ()][y+2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y+5][move.getX()+5] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()+1] == color && b[move.getZ()][y+2][move.getX()+2] == neutral &&
-                            b[move.getZ()][y+3][move.getX()+3] == neutral && b[move.getZ()][y+4][move.getX()+4] == neutral && b[move.getZ()][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()][y+2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y+5][move.getX()+5] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y+1][move.getX()+1] == neutral && b[move.getZ()][y+2][move.getX()+2] == neutral &&
-                            b[move.getZ()][y+3][move.getX()+3] == neutral && b[move.getZ()][y+4][move.getX()+4] == neutral && b[move.getZ()][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y+1][move.getX()+1] == neutral && grid.getBoard()[move.getZ()][y+2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y+5][move.getX()+5] == neutral)
                         score+=1;
+
+                    else
+                        score+=0;
 
                 }
             }
@@ -921,26 +986,28 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y-1][move.getX()+1] == color && b[move.getZ()][y-2][move.getX()+2] == color &&
-                            b[move.getZ()][y-3][move.getX()+3] == color && b[move.getZ()][y-4][move.getX()+4] == color && b[move.getZ()][y-5][move.getX()+5] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()][y-3][move.getX()+3] == color && grid.getBoard()[move.getZ()][y-4][move.getX()+4] == color && grid.getBoard()[move.getZ()][y-5][move.getX()+5] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y-1][move.getX()+1] == color && b[move.getZ()][y-2][move.getX()+2] == color &&
-                            b[move.getZ()][y-3][move.getX()+3] == color && b[move.getZ()][y-4][move.getX()+4] == neutral && b[move.getZ()][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()][y-3][move.getX()+3] == color && grid.getBoard()[move.getZ()][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y-5][move.getX()+5] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y-1][move.getX()] == color && b[move.getZ()][y-2][move.getX()] == color &&
-                            b[move.getZ()][y-3][move.getX()+3] == neutral && b[move.getZ()][y-4][move.getX()+4] == neutral && b[move.getZ()][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y-1][move.getX()] == color && grid.getBoard()[move.getZ()][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y-5][move.getX()+5] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y-1][move.getX()+1] == color && b[move.getZ()][y-2][move.getX()+2] == neutral &&
-                            b[move.getZ()][y-3][move.getX()+3] == neutral && b[move.getZ()][y-4][move.getX()+4] == neutral && b[move.getZ()][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()][y-2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y-5][move.getX()+5] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()][y-1][move.getX()+1] == neutral && b[move.getZ()][y-2][move.getX()+2] == neutral &&
-                            b[move.getZ()][y-3][move.getX()+3] == neutral && b[move.getZ()][y-4][move.getX()+4] == neutral && b[move.getZ()][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()][y-1][move.getX()+1] == neutral && grid.getBoard()[move.getZ()][y-2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()][y-5][move.getX()+5] == neutral)
                         score+=1;
 
+                    else
+                        score+=0;
 
                 }
             }
@@ -953,25 +1020,28 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()] == color && b[move.getZ()-2][y-2][move.getX()] == color &&
-                            b[move.getZ()-3][y-3][move.getX()] == color && b[move.getZ()-4][y-4][move.getX()] == color && b[move.getZ()-5][y-5][move.getX()] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()] == color && grid.getBoard()[move.getZ()-4][y-4][move.getX()] == color && grid.getBoard()[move.getZ()-5][y-5][move.getX()] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()] == color && b[move.getZ()-2][y-2][move.getX()] == color &&
-                            b[move.getZ()-3][y-3][move.getX()] == color && b[move.getZ()-4][y-4][move.getX()] == neutral && b[move.getZ()-5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()] == color && grid.getBoard()[move.getZ()-4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()] == color && b[move.getZ()-2][y-2][move.getX()] == color &&
-                            b[move.getZ()-3][y-3][move.getX()] == neutral && b[move.getZ()-4][y-4][move.getX()] == neutral && b[move.getZ()-5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()] == neutral && grid.getBoard()[move.getZ()-4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()] == color && b[move.getZ()-2][y-2][move.getX()] == neutral &&
-                            b[move.getZ()-3][y-3][move.getX()] == neutral && b[move.getZ()-4][y-4][move.getX()] == neutral && b[move.getZ()-5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()] == neutral &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()] == neutral && grid.getBoard()[move.getZ()-4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()] == neutral && b[move.getZ()-2][y-2][move.getX()] == neutral &&
-                            b[move.getZ()-3][y-3][move.getX()] == neutral && b[move.getZ()-4][y-4][move.getX()] == neutral && b[move.getZ()-5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()] == neutral && grid.getBoard()[move.getZ()-2][y-2][move.getX()] == neutral &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()] == neutral && grid.getBoard()[move.getZ()-4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()] == neutral)
                         score+=1;
+
+                    else
+                        score+=0;
 
                 }
             }
@@ -984,25 +1054,28 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()] == color && b[move.getZ()+2][y-2][move.getX()] == color &&
-                            b[move.getZ()+3][y-3][move.getX()] == color && b[move.getZ()+4][y-4][move.getX()] == color && b[move.getZ()+5][y-5][move.getX()] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()] == color && grid.getBoard()[move.getZ()+4][y-4][move.getX()] == color && grid.getBoard()[move.getZ()+5][y-5][move.getX()] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()] == color && b[move.getZ()+2][y-2][move.getX()] == color &&
-                            b[move.getZ()+3][y-3][move.getX()] == color && b[move.getZ()+4][y-4][move.getX()] == neutral && b[move.getZ()+5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()] == color && grid.getBoard()[move.getZ()+4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()] == color && b[move.getZ()+2][y-2][move.getX()] == color &&
-                            b[move.getZ()+3][y-3][move.getX()] == neutral && b[move.getZ()+4][y-4][move.getX()] == neutral && b[move.getZ()+5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()] == color &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()] == neutral && grid.getBoard()[move.getZ()+4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()] == color && b[move.getZ()+2][y-2][move.getX()] == neutral &&
-                            b[move.getZ()+3][y-3][move.getX()] == neutral && b[move.getZ()+4][y-4][move.getX()] == neutral && b[move.getZ()+5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()] == neutral &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()] == neutral && grid.getBoard()[move.getZ()+4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()] == neutral && b[move.getZ()+2][y-2][move.getX()] == neutral &&
-                            b[move.getZ()+3][y-3][move.getX()] == neutral && b[move.getZ()+4][y-4][move.getX()] == neutral && b[move.getZ()+5][y-5][move.getX()] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()] == neutral && grid.getBoard()[move.getZ()+2][y-2][move.getX()] == neutral &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()] == neutral && grid.getBoard()[move.getZ()+4][y-4][move.getX()] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()] == neutral)
                         score+=1;
+
+                    else
+                        score+=0;
 
                 }
             }
@@ -1015,26 +1088,28 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()+1] == color && b[move.getZ()-2][y-2][move.getX()+2] == color &&
-                            b[move.getZ()-3][y-3][move.getX()+3] == color && b[move.getZ()-4][y-4][move.getX()+4] == color && b[move.getZ()-5][y-5][move.getX()+5] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()+3] == color && grid.getBoard()[move.getZ()-4][y-4][move.getX()+4] == color && grid.getBoard()[move.getZ()-5][y-5][move.getX()+5] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()+1] == color && b[move.getZ()-2][y-2][move.getX()+2] == color &&
-                            b[move.getZ()-3][y-3][move.getX()+3] == color && b[move.getZ()-4][y-4][move.getX()+4] == neutral && b[move.getZ()-5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()+3] == color && grid.getBoard()[move.getZ()-4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()+5] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()+1] == color && b[move.getZ()-2][y-2][move.getX()+2] == color &&
-                            b[move.getZ()-3][y-3][move.getX()+3] == neutral && b[move.getZ()-4][y-4][move.getX()+4] == neutral && b[move.getZ()-5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()-4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()+5] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()+1] == color && b[move.getZ()-2][y-2][move.getX()+2] == neutral &&
-                            b[move.getZ()-3][y-3][move.getX()+3] == neutral && b[move.getZ()-4][y-4][move.getX()+4] == neutral && b[move.getZ()-5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y-2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()-4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()+5] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y-1][move.getX()+1] == neutral && b[move.getZ()-2][y-2][move.getX()+2] == neutral &&
-                            b[move.getZ()-3][y-3][move.getX()+3] == neutral && b[move.getZ()-4][y-4][move.getX()+4] == neutral && b[move.getZ()-5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y-1][move.getX()+1] == neutral && grid.getBoard()[move.getZ()-2][y-2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()-3][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()-4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y-5][move.getX()+5] == neutral)
                         score+=1;
 
+                    else
+                        score+=0;
 
                 }
             }
@@ -1047,57 +1122,62 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y+1][move.getX()+1] == color && b[move.getZ()-2][y+2][move.getX()+2] == color &&
-                            b[move.getZ()-3][y+3][move.getX()+3] == color && b[move.getZ()-4][y+4][move.getX()+4] == color && b[move.getZ()-5][y+5][move.getX()+5] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()-3][y+3][move.getX()+3] == color && grid.getBoard()[move.getZ()-4][y+4][move.getX()+4] == color && grid.getBoard()[move.getZ()-5][y+5][move.getX()+5] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y+1][move.getX()+1] == color && b[move.getZ()-2][y+2][move.getX()+2] == color &&
-                            b[move.getZ()-3][y+3][move.getX()+3] == color && b[move.getZ()-4][y+4][move.getX()+4] == neutral && b[move.getZ()-5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()-3][y+3][move.getX()+3] == color && grid.getBoard()[move.getZ()-4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y+5][move.getX()+5] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y+1][move.getX()+1] == color && b[move.getZ()-2][y+2][move.getX()+2] == color &&
-                            b[move.getZ()-3][y+3][move.getX()+3] == neutral && b[move.getZ()-4][y+4][move.getX()+4] == neutral && b[move.getZ()-5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()-3][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()-4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y+5][move.getX()+5] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y+1][move.getX()+1] == color && b[move.getZ()-2][y+2][move.getX()+2] == neutral &&
-                            b[move.getZ()-3][y+3][move.getX()+3] == neutral && b[move.getZ()-4][y+4][move.getX()+4] == neutral && b[move.getZ()-5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()-2][y+2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()-3][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()-4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y+5][move.getX()+5] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()-1][y+1][move.getX()+1] == neutral && b[move.getZ()-2][y+2][move.getX()+2] == neutral &&
-                            b[move.getZ()-3][y+3][move.getX()+3] == neutral && b[move.getZ()-4][y+4][move.getX()+4] == neutral && b[move.getZ()-5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()-1][y+1][move.getX()+1] == neutral && grid.getBoard()[move.getZ()-2][y+2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()-3][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()-4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()-5][y+5][move.getX()+5] == neutral)
                         score+=1;
 
+                    else
+                        score+=0;
 
                 }
             }
         }
 
         //--------V-WTF-AM-I-DOING-------//
-        for(int z=0; z+5 > 0; z++)
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
         {
-            for(int y=0; y+5 > 0; y++)
+            for(int y=0; y+5 < Board.Y_SIZE; y++)
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y+1][move.getX()+1] == color && b[move.getZ()+2][y+2][move.getX()+2] == color &&
-                            b[move.getZ()+3][y+3][move.getX()+3] == color && b[move.getZ()+4][y+4][move.getX()+4] == color && b[move.getZ()+5][y+5][move.getX()+5] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()+3][y+3][move.getX()+3] == color && grid.getBoard()[move.getZ()+4][y+4][move.getX()+4] == color && grid.getBoard()[move.getZ()+5][y+5][move.getX()+5] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y+1][move.getX()+1] == color && b[move.getZ()+2][y+2][move.getX()+2] == color &&
-                            b[move.getZ()+3][y+3][move.getX()+3] == color && b[move.getZ()+4][y+4][move.getX()+4] == neutral && b[move.getZ()+5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()+3][y+3][move.getX()+3] == color && grid.getBoard()[move.getZ()+4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y+5][move.getX()+5] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y+1][move.getX()+1] == color && b[move.getZ()+2][y+2][move.getX()+2] == color &&
-                            b[move.getZ()+3][y+3][move.getX()+3] == neutral && b[move.getZ()+4][y+4][move.getX()+4] == neutral && b[move.getZ()+5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y+2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()+3][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()+4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y+5][move.getX()+5] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y+1][move.getX()+1] == color && b[move.getZ()+2][y+2][move.getX()+2] == neutral &&
-                            b[move.getZ()+3][y+3][move.getX()+3] == neutral && b[move.getZ()+4][y+4][move.getX()+4] == neutral && b[move.getZ()+5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y+1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y+2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()+3][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()+4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y+5][move.getX()+5] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y+1][move.getX()+1] == neutral && b[move.getZ()+2][y+2][move.getX()+2] == neutral &&
-                            b[move.getZ()+3][y+3][move.getX()+3] == neutral && b[move.getZ()+4][y+4][move.getX()+4] == neutral && b[move.getZ()+5][y+5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y+1][move.getX()+1] == neutral && grid.getBoard()[move.getZ()+2][y+2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()+3][y+3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()+4][y+4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y+5][move.getX()+5] == neutral)
                         score+=1;
+
+                    else
+                        score+=0;
 
                 }
             }
@@ -1110,29 +1190,40 @@ public class P3_AI_SE_AC
             {
                 for(int x=0; x+5 < Board.X_SIZE; x++)
                 {
-                    if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()+1] == color && b[move.getZ()+2][y-2][move.getX()+2] == color &&
-                            b[move.getZ()+3][y-3][move.getX()+3] == color && b[move.getZ()+4][y-4][move.getX()+4] == color && b[move.getZ()+5][y-5][move.getX()+5] == neutral)
+                    if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()+3] == color && grid.getBoard()[move.getZ()+4][y-4][move.getX()+4] == color && grid.getBoard()[move.getZ()+5][y-5][move.getX()+5] == neutral)
                         score+=5;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()+1] == color && b[move.getZ()+2][y-2][move.getX()+2] == color &&
-                            b[move.getZ()+3][y-3][move.getX()+3] == color && b[move.getZ()+4][y-4][move.getX()+4] == neutral && b[move.getZ()+5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()+3] == color && grid.getBoard()[move.getZ()+4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()+5] == neutral)
                         score+=4;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()+1] == color && b[move.getZ()+2][y-2][move.getX()+2] == color &&
-                            b[move.getZ()+3][y-3][move.getX()+3] == neutral && b[move.getZ()+4][y-4][move.getX()+4] == neutral && b[move.getZ()+5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()+2] == color &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()+4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()+5] == neutral)
                         score+=3;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()+1] == color && b[move.getZ()+2][y-2][move.getX()+2] == neutral &&
-                            b[move.getZ()+3][y-3][move.getX()+3] == neutral && b[move.getZ()+4][y-4][move.getX()+4] == neutral && b[move.getZ()+5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()+1] == color && grid.getBoard()[move.getZ()+2][y-2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()+4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()+5] == neutral)
                         score+=2;
 
-                    else if(b[move.getZ()][y][move.getX()] == color && b[move.getZ()+1][y-1][move.getX()+1] == neutral && b[move.getZ()+2][y-2][move.getX()+2] == neutral &&
-                            b[move.getZ()+3][y-3][move.getX()+3] == neutral && b[move.getZ()+4][y-4][move.getX()+4] == neutral && b[move.getZ()+5][y-5][move.getX()+5] == neutral)
+                    else if(grid.getBoard()[move.getZ()][y][move.getX()] == color && grid.getBoard()[move.getZ()+1][y-1][move.getX()+1] == neutral && grid.getBoard()[move.getZ()+2][y-2][move.getX()+2] == neutral &&
+                            grid.getBoard()[move.getZ()+3][y-3][move.getX()+3] == neutral && grid.getBoard()[move.getZ()+4][y-4][move.getX()+4] == neutral && grid.getBoard()[move.getZ()+5][y-5][move.getX()+5] == neutral)
                         score+=1;
+
+                    else
+                        score+=0;
 
                 }
             }
-        }
+        }*/
+
         return score;
     }
+
+    @Override
+    public Player freshCopy()
+    {
+        return new Syarief_Andrew_AI(board, color);
+    }
+
 }
