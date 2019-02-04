@@ -12,7 +12,7 @@ public class Syarief_Andrew_AI extends Player
 
     public Syarief_Andrew_AI(Board board, char color)
     {
-        super("test", color);
+        super("RizBiz", color);
         this.board = board;
         this.color = color;
 
@@ -25,17 +25,20 @@ public class Syarief_Andrew_AI extends Player
     {
         Move makeMove = new Move((int)(Math.random()*7), (int)(Math.random()*7));
 
-        int friendly = makeMove(board, color);
-        int enemy = makeMove(board, opposition);
+        do {
+            int friendly = makeMove(board, color);
+            int enemy = makeMove(board, opposition);
 
-        if(friendly > enemy)
-            makeMove = attack;
+            if (friendly > enemy)
+                makeMove = attack;
 
-        else if(friendly < enemy)
-            makeMove = block;
+            else if (friendly < enemy)
+                makeMove = block;
 
-        else if (friendly == enemy)
-            makeMove = block;
+            else if (friendly == enemy)
+                makeMove = block;
+
+        }while(board.isFull(makeMove));
 
         return makeMove;
 
@@ -70,46 +73,77 @@ public class Syarief_Andrew_AI extends Player
                             grid.getBoard()[z][y][x + 3] == color && grid.getBoard()[z][y][x + 4] == color && grid.getBoard()[z][y][x + 5] == neutral)
                     {
                         if(this.color == color)
+                        {
                             attack = new Move(x + 5, z);
+                            priority = 5;
+                        }
 
                         else if(this.opposition == color)
+                        {
                             block = new Move(x + 5, z);
+                            priority = 6;
+                        }
 
-                        priority = 5;
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color &&
                             grid.getBoard()[z][y][x + 3] == color && grid.getBoard()[z][y][x + 4] == neutral)
                     {
-                        if(this.color == color)
-                            attack = new Move(x + 4, z);
+                        if(priority < 4)
+                        {
+                            if (this.color == color)
+                            {
+                                attack = new Move(x + 4, z);
+                                priority = 4;
+                            }
 
-                        else if(this.opposition == color)
-                            block = new Move(x + 4, z);
+                            else if (this.opposition == color)
+                            {
+                                block = new Move(x + 4, z);
+                                priority = 5;
+                            }
 
-                        priority = 4;
+
+                        }
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color &&
                             grid.getBoard()[z][y][x + 3] == neutral)
                     {
-                        if(this.color == color)
-                            attack = new Move(x + 3, z);
+                        if(priority < 3) {
+                            if (this.color == color)
+                            {
+                                attack = new Move(x + 3, z);
+                                priority = 3;
+                            }
 
-                        else if(this.opposition == color)
-                            block = new Move(x + 3, z);
-                        priority = 3;
+                            else if (this.opposition == color)
+                            {
+                                block = new Move(x + 3, z);
+                                priority = 4;
+                            }
+
+
+                        }
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == neutral)
                     {
-                        if(this.color == color)
-                            attack = new Move(x + 2, z);
+                        if(priority < 2)
+                        {
+                            if (this.color == color)
+                            {
+                                attack = new Move(x + 2, z);
+                                priority = 2;
+                            }
 
-                        else if(this.opposition == color)
-                            block = new Move(x + 2, z);
+                            else if (this.opposition == color)
+                            {
+                                block = new Move(x + 2, z);
+                                priority = 3;
+                            }
 
-                        priority = 2;
+                        }
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == neutral)
@@ -147,12 +181,18 @@ public class Syarief_Andrew_AI extends Player
                             grid.getBoard()[z + 3][y][x] == color && grid.getBoard()[z + 4][y][x] == color && grid.getBoard()[z + 5][y][x] == neutral)
                     {
                         if(this.color == color)
-                            attack = new Move(x, z+5);
+                        {
+                            attack = new Move(x, z + 5);
+                            priority = 5;
+                        }
 
                         else if(this.opposition == color)
-                            block = new Move(x, z+5);
+                        {
+                            block = new Move(x, z + 5);
+                            priority = 6;
+                        }
 
-                        priority = 5;
+
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color &&
@@ -161,12 +201,17 @@ public class Syarief_Andrew_AI extends Player
                         if(priority < 4)
                         {
                             if(this.color == color)
-                                attack = new Move(x, z+4);
+                            {
+                                attack = new Move(x, z + 4);
+                                priority = 4;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x, z+4);
+                            {
+                                block = new Move(x, z + 4);
+                                priority = 5;
+                            }
 
-                            priority = 4;
                         }
                     }
 
@@ -175,13 +220,16 @@ public class Syarief_Andrew_AI extends Player
                     {
                         if(priority < 3)
                         {
-                            if(this.color == color)
-                                attack = new Move(x, z+3);
+                            if(this.color == color) {
+                                attack = new Move(x, z + 3);
+                                priority = 3;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x, z+3);
-
-                            priority = 3;
+                            {
+                                block = new Move(x, z + 3);
+                                priority = 4;
+                            }
                         }
                     }
 
@@ -190,12 +238,16 @@ public class Syarief_Andrew_AI extends Player
                         if(priority < 2)
                         {
                             if(this.color == color)
-                                attack = new Move(x, z+2);
+                            {
+                                attack = new Move(x, z + 2);
+                                priority = 2;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x, z+2);
-
-                            priority = 2;
+                            {
+                                block = new Move(x, z + 2);
+                                priority = 3;
+                            }
                         }
                     }
 
@@ -233,12 +285,17 @@ public class Syarief_Andrew_AI extends Player
                             grid.getBoard()[z][y + 3][x] == color && grid.getBoard()[z][y + 4][x] == color && grid.getBoard()[z][y + 5][x] == neutral)
                     {
                         if(this.color == color)
+                        {
                             attack = new Move(x, z);
+                            priority = 5;
+                        }
 
                         else if(this.opposition == color)
+                        {
                             block = new Move(x, z);
+                            priority = 6;
+                        }
 
-                        priority = 5;
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color &&
@@ -247,12 +304,16 @@ public class Syarief_Andrew_AI extends Player
                         if(priority < 4)
                         {
                             if(this.color == color)
+                            {
                                 attack = new Move(x, z);
+                                priority = 4;
+                            }
 
                             else if(this.opposition == color)
+                            {
                                 block = new Move(x, z);
-
-                            priority = 4;
+                                priority = 5;
+                            }
                         }
                     }
 
@@ -262,12 +323,16 @@ public class Syarief_Andrew_AI extends Player
                         if (priority < 3)
                         {
                             if(this.color == color)
+                            {
                                 attack = new Move(x, z);
+                                priority = 3;
+                            }
 
                             else if(this.opposition == color)
+                            {
                                 block = new Move(x, z);
-
-                            priority = 3;
+                                priority = 4;
+                            }
                         }
                     }
 
@@ -276,19 +341,25 @@ public class Syarief_Andrew_AI extends Player
                         if (priority < 2)
                         {
                             if(this.color == color)
+                            {
                                 attack = new Move(x, z);
+                                priority = 2;
+                            }
 
                             else if(this.opposition == color)
+                            {
                                 block = new Move(x, z);
+                                priority = 3;
+                            }
 
-                            priority = 2;
                         }
                     }
 
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == neutral)
+                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == neutral)
                     {
                         if(this.color == color)
                             attack = new Move(x, z);
+
 
                         if(count < 3)
                             priority = 5;
@@ -319,12 +390,18 @@ public class Syarief_Andrew_AI extends Player
                             grid.getBoard()[z + 3][y][x + 3] == color && grid.getBoard()[z + 4][y][x + 4] == color && grid.getBoard()[z + 5][y][x + 5] == neutral)
                     {
                         if(this.color == color)
-                            attack = new Move(x+5, z+5);
+                        {
+                            attack = new Move(x + 5, z + 5);
+                            priority = 5;
+                        }
 
                         else if(this.opposition == color)
-                            block = new Move(x+5, z+5);
+                        {
+                            block = new Move(x + 5, z + 5);
+                            priority = 6;
+                        }
 
-                        priority = 5;
+
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color &&
@@ -333,12 +410,17 @@ public class Syarief_Andrew_AI extends Player
                         if(priority > 4)
                         {
                             if(this.color == color)
-                                attack = new Move(x+4, z+4);
+                            {
+                                attack = new Move(x + 4, z + 4);
+                                priority = 4;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x+4, z+4);
+                            {
+                                block = new Move(x + 4, z + 4);
+                                priority = 5;
+                            }
 
-                            priority = 4;
                         }
                     }
 
@@ -347,13 +429,18 @@ public class Syarief_Andrew_AI extends Player
                     {
                         if (priority < 3)
                         {
-                            if(this.color == color)
-                                attack = new Move(x+3, z+3);
+                            if(this.color == color) {
+                                attack = new Move(x + 3, z + 3);
+                                priority = 3;
+                            }
+
 
                             else if(this.opposition == color)
-                                block = new Move(x+3, z+3);
+                            {
+                                block = new Move(x + 3, z + 3);
+                                priority = 4;
+                            }
 
-                            priority = 3;
                         }
                     }
 
@@ -363,12 +450,16 @@ public class Syarief_Andrew_AI extends Player
                         if (priority < 2)
                         {
                             if(this.color == color)
-                                attack = new Move(x+2, z+2);
+                            {
+                                attack = new Move(x + 2, z + 2);
+                                priority = 2;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x+2, z+2);
-
-                            priority = 2;
+                            {
+                                block = new Move(x + 2, z + 2);
+                                priority = 3;
+                            }
                         }
                     }
 
@@ -376,6 +467,7 @@ public class Syarief_Andrew_AI extends Player
                     {
                         if(this.color == color)
                             attack = new Move(x+1, z+1);
+
 
                         if(count < 3)
                             priority = 5;
@@ -407,12 +499,17 @@ public class Syarief_Andrew_AI extends Player
                             grid.getBoard()[z - 3][y][x + 3] == color && grid.getBoard()[z - 4][y][x + 4] == color && grid.getBoard()[z - 5][y][x + 5] == neutral)
                     {
                         if(this.color == color)
-                            attack = new Move(x+5, z-5);
+                        {
+                            attack = new Move(x + 5, z - 5);
+                            priority = 5;
+                        }
 
                         else if(this.opposition == color)
-                            block = new Move(x+5, z-5);
+                        {
+                            block = new Move(x + 5, z - 5);
+                            priority = 6;
+                        }
 
-                        priority = 5;
                     }
 
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color &&
@@ -421,12 +518,17 @@ public class Syarief_Andrew_AI extends Player
                         if(priority > 4)
                         {
                             if(this.color == color)
-                                attack = new Move(x+4, z-4);
+                            {
+                                attack = new Move(x + 4, z - 4);
+                                priority = 4;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x+4, z-4);
+                            {
+                                block = new Move(x + 4, z - 4);
+                                priority = 5;
+                            }
 
-                            priority = 4;
                         }
                     }
 
@@ -436,12 +538,17 @@ public class Syarief_Andrew_AI extends Player
                         if (priority < 3)
                         {
                             if(this.color == color)
-                                attack = new Move(x+3, z-3);
+                            {
+                                attack = new Move(x + 3, z - 3);
+                                priority = 3;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x+3, z-3);
+                            {
+                                block = new Move(x + 3, z - 3);
+                                priority = 4;
+                            }
 
-                            priority = 3;
                         }
                     }
 
@@ -450,12 +557,16 @@ public class Syarief_Andrew_AI extends Player
                         if (priority < 2)
                         {
                             if(this.color == color)
-                                attack = new Move(x+2, z-2);
+                            {
+                                attack = new Move(x + 2, z - 2);
+                                priority = 2;
+                            }
 
                             else if(this.opposition == color)
-                                block = new Move(x+2, z-2);
-
-                            priority = 2;
+                            {
+                                block = new Move(x + 2, z - 2);
+                                priority = 3;
+                            }
                         }
                     }
 
