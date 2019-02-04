@@ -20,56 +20,7 @@ public class Syarief_Andrew_AI extends Player
 
     public Move getMove(Board board)
     {
-        ArrayList<Move> moves = new ArrayList<>();
-        Move bestMove = new Move(0,0);
-
-        //--------------TEST-ALL-MOVES-----------------//
-        for(int z = 0; z < Board.Z_SIZE; z++)
-        {
-            for(int x = 0; x < Board.X_SIZE; x++)
-            {
-                if(!board.isFull(new Move(z, x)))
-                {
-                    moves.add(new Move(z, x));
-                }
-            }
-        }
-
-        int[] friendlyScores = new int[moves.size()];
-        int[] oppositionScores = new int[moves.size()];
-
-        //--------------GRADE-MOVES---------------------//
-        for(int x=0; x<moves.size(); x++)
-        {
-            friendlyScores[x] = grader(board, moves.get(x), color);
-            oppositionScores[x] = grader(board, moves.get(x), opposition);
-        }
-
-        /*for(int x=0; x<friendlyScores.length; x++)
-        {
-            System.out.println("AI: " + friendlyScores[x] + ", Opponent: " + oppositionScores[x]);
-        }*/
-
-        int friendlyMax = 0;
-        int oppositionMax = 0;
-        for(int x=1; x<moves.size(); x++)
-        {
-            if(friendlyScores[x] > friendlyScores[x-1] && friendlyScores[x] > friendlyMax)
-                friendlyMax = friendlyScores[x];
-
-            if(oppositionScores[x] > oppositionScores[x-1] && oppositionScores[x] > oppositionMax)
-                oppositionMax = oppositionScores[x];
-
-            if(friendlyMax > oppositionMax || friendlyMax == oppositionMax)
-                bestMove = moves.get(x);
-
-            else if(friendlyMax < oppositionMax)
-            {
-                ;
-            }
-        }
-
-        return bestMove;
+        
     }
 
     private int grader(Board grid, Move move, char color)
@@ -560,9 +511,595 @@ public class Syarief_Andrew_AI extends Player
         return score;
     }
     
-    private Move counterMeasures(Board grid)
+    private Move block(Board grid, char color)
     {
-        
+        Move bestBlock = null;
+        int priority = 0;
+
+        //----------Horizontal-LEFT-RIGHT---------//
+        for(int z=0; z < Board.Z_SIZE; z++)
+        {
+            for(int y=0; y < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                    
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color &&
+                                grid.getBoard()[z][y][x + 3] == color && grid.getBoard()[z][y][x + 4] == color && grid.getBoard()[z][y][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x + 5, z);
+                            priority = 5;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color &&
+                                grid.getBoard()[z][y][x + 3] == color && grid.getBoard()[z][y][x + 4] == neutral)
+                        {
+                            bestBlock = new Move( x + 4, z);
+                            priority = 4;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color &&
+                                grid.getBoard()[z][y][x + 3] == neutral)
+                        {
+                            bestBlock = new Move(x + 3, z);
+                            priority = 3;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == neutral)
+                        {
+                            bestBlock = new Move(x + 2, z);
+                            priority = 2;
+                        }
+
+                        /*else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == neutral)
+                            score += 1;*/
+
+                        if(priority == 5)
+                            return bestBlock;
+                        
+                }
+            }
+        }
+
+        //----------Horizontal-UP-DOWN---------//
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
+        {
+            for(int y=0; y < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x < Board.X_SIZE; x++)
+                {
+
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color &&
+                                grid.getBoard()[z + 3][y][x] == color && grid.getBoard()[z + 4][y][x] == color && grid.getBoard()[z + 5][y][x] == neutral)
+                        {
+                            bestBlock = new Move(x, z+5);
+                            priority = 5;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color &&
+                                grid.getBoard()[z + 3][y][x] == color && grid.getBoard()[z + 4][y][x] == neutral)
+                        {
+                            bestBlock = new Move(x, z + 4);
+                            priority = 4;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color &&
+                                grid.getBoard()[z + 3][y][x] == neutral)
+                        {
+                            if(priority < 3)
+                            {
+                                bestBlock = new Move(x, z + 3);
+                                priority = 3;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == neutral)
+                        {
+                            if(priority < 2)
+                            {
+                                bestBlock = new Move(x, z + 2);
+                                priority = 2;
+                            }
+                        }
+
+                        /*else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == neutral)
+                        {
+                            bestBlock = new Move(z, x);
+                            priority = 2;
+                        }*/
+
+                        if(priority == 5)
+                            return bestBlock;
+
+                }
+            }
+        }
+
+        //----------Vertical---------//
+        for(int z=0; z < Board.Z_SIZE; z++)
+        {
+            for(int y=0; y+5 < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x < Board.X_SIZE; x++)
+                {
+                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color &&
+                            grid.getBoard()[z][y + 3][x] == color && grid.getBoard()[z][y + 4][x] == color && grid.getBoard()[z][y + 5][x] == neutral)
+                    {
+                        bestBlock = new Move(x, z);
+                        priority = 5;
+                    }
+
+                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color &&
+                                grid.getBoard()[z][y + 3][x] == color && grid.getBoard()[z][y + 4][x] == neutral)
+                    {
+                        bestBlock = new Move(x, z);
+                        priority = 4;
+                    }
+
+                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color &&
+                                grid.getBoard()[z][y + 3][x] == neutral)
+                    {
+                        if (priority < 3)
+                        {
+                            bestBlock = new Move(x, z);
+                            priority = 3;
+                        }
+                    }
+
+                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == neutral)
+                    {
+                        if (priority < 2)
+                        {
+                            bestBlock = new Move(x, z);
+                            priority = 2;
+                        }
+                    }
+
+                    /*else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == neutral)
+                    {
+                        bestBlock = new Move(x, z);
+                        priority = 5;
+                    }*/
+
+                    if(priority == 5)
+                        return bestBlock;
+
+                }
+            }
+        }
+
+        //---------Diagonal-UP-DOWN-------//
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
+        {
+            for(int y=0; y < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color &&
+                                grid.getBoard()[z + 3][y][x + 3] == color && grid.getBoard()[z + 4][y][x + 4] == color && grid.getBoard()[z + 5][y][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x, z);
+                            priority = 5;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color &&
+                                grid.getBoard()[z + 3][y][x + 3] == color && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x, z);
+                            priority = 4;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color &&
+                                grid.getBoard()[z + 3][y][x + 3] == neutral && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
+                        {
+                            if (priority < 3)
+                            {
+                                bestBlock = new Move(x, z);
+                                priority = 3;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == neutral &&
+                                grid.getBoard()[z + 3][y][x + 3] == neutral && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
+                        {
+                            if (priority < 2)
+                            {
+                                bestBlock = new Move(x, z);
+                                priority = 2;
+                            }
+                        }
+
+                        /*else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == neutral && grid.getBoard()[z + 2][y][x + 2] == neutral &&
+                                grid.getBoard()[z + 3][y][x + 3] == neutral && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;*/
+
+                        if(priority == 5)
+                            return bestBlock;
+                }
+            }
+        }
+
+        //---------Diagonal-DOWN-UP-------//
+        for(int z=Board.Z_SIZE-1; z-5> 0; z--)
+        {
+            for(int y=0; y < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+
+                {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color &&
+                                grid.getBoard()[z - 3][y][x + 3] == color && grid.getBoard()[z - 4][y][x + 4] == color && grid.getBoard()[z - 5][y][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x+5, z-5);
+                            priority = 5;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color &&
+                                grid.getBoard()[z - 3][y][x + 3] == color && grid.getBoard()[z - 4][y][x + 4] == neutral)
+                        {
+                            bestBlock = new Move(x+4, z-4);
+                            priority = 4;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color &&
+                                grid.getBoard()[z - 3][y][x + 3] == neutral)
+                        {
+                            if (priority < 3)
+                            {
+                                bestBlock = new Move(x+3, z-3);
+                                priority = 3;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == neutral)
+                        {
+                            if (priority < 2)
+                            {
+                                bestBlock = new Move(x+2, z-2);
+                                priority = 2;
+                            }
+                        }
+
+                        /*else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == neutral && grid.getBoard()[z - 2][y][x + 2] == neutral &&
+                                grid.getBoard()[z - 3][y][x + 3] == neutral && grid.getBoard()[z - 4][y][x + 4] == neutral && grid.getBoard()[z - 5][y][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;*/
+
+                        if(priority == 5)
+                            return bestBlock;
+
+                }
+            }
+        }
+
+        /*//--------V-Diagonal-UP-DOWN-WALL-1----//
+        for(int z=0; z < Board.Z_SIZE; z++)
+        {
+            for(int y=0; y+5 < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == color && grid.getBoard()[z][y + 2][x + 2] == color &&
+                                grid.getBoard()[z][y + 3][x + 3] == color && grid.getBoard()[z][y + 4][x + 4] == color && grid.getBoard()[z][y + 5][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x+5, z);
+                            priority = 5;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == color && grid.getBoard()[z][y + 2][x + 2] == color &&
+                                grid.getBoard()[z][y + 3][x + 3] == color && grid.getBoard()[z][y + 4][x + 4] == neutral)
+                        {
+                            bestBlock = new Move(x+4, z);
+                            priority = 4;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color &&
+                                grid.getBoard()[z][y + 3][x + 3] == neutral)
+                        {
+                            if (priority < 3)
+                            {
+                                bestBlock = new Move(x+3, z);
+                                priority = 3;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == color && grid.getBoard()[z][y + 2][x + 2] == neutral)
+                        {
+                            if (priority < 2)
+                            {
+                                bestBlock = new Move(x+2, z);
+                                priority = 2;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == neutral)
+                        {
+
+                        }
+
+                        if(priority == 5)
+                            return bestBlock;
+
+                }
+            }
+        }
+
+        //--------V-Diagonal-DOWN-UP-WALL-1----//
+        for(int z=0; z < Board.Z_SIZE; z++)
+        {
+            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == color && grid.getBoard()[z][y - 2][x + 2] == color &&
+                                grid.getBoard()[z][y - 3][x + 3] == color && grid.getBoard()[z][y - 4][x + 4] == color && grid.getBoard()[z][y - 5][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x+5, z);
+                            priority = 5;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == color && grid.getBoard()[z][y - 2][x + 2] == color &&
+                                grid.getBoard()[z][y - 3][x + 3] == color && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
+                        {
+                            bestBlock = new Move(x+4, z);
+                            priority = 4;
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x] == color && grid.getBoard()[z][y - 2][x] == color &&
+                                grid.getBoard()[z][y - 3][x + 3] == neutral && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
+                        {
+                            if (priority < 3)
+                            {
+                                bestBlock = new Move(x+3, z);
+                                priority = 3;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == color && grid.getBoard()[z][y - 2][x + 2] == neutral &&
+                                grid.getBoard()[z][y - 3][x + 3] == neutral && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
+                        {
+                            if (priority < 2)
+                            {
+                                bestBlock = new Move(x+2, z);
+                                priority = 2;
+                            }
+                        }
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == neutral && grid.getBoard()[z][y - 2][x + 2] == neutral &&
+                                grid.getBoard()[z][y - 3][x + 3] == neutral && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        if(priority == 5)
+                            return bestBlock;
+
+
+                }
+            }
+        }
+
+        //--------V-Diagonal-DOWN-UP-WALL-2----//
+        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
+        {
+            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
+            {
+                for(int x=0; x < Board.X_SIZE; x++)
+                {
+                    if(z > 5)
+                    {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == color &&
+                                grid.getBoard()[z - 3][y - 3][x] == color && grid.getBoard()[z - 4][y - 4][x] == color && grid.getBoard()[z - 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 5;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == color &&
+                                grid.getBoard()[z - 3][y - 3][x] == color && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 4;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == color &&
+                                grid.getBoard()[z - 3][y - 3][x] == neutral && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 3;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == neutral &&
+                                grid.getBoard()[z - 3][y - 3][x] == neutral && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 2;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == neutral && grid.getBoard()[z - 2][y - 2][x] == neutral &&
+                                grid.getBoard()[z - 3][y - 3][x] == neutral && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        else
+                            bestBlock = new Move(x, z) += 0;
+                    }
+
+                }
+            }
+        }
+
+        //--------V-Diagonal--UP-DOWN-WALL-2---//
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
+        {
+            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
+            {
+                for(int x=0; x < Board.X_SIZE; x++)
+                {
+                    if(z < 3)
+                    {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == color &&
+                                grid.getBoard()[z + 3][y - 3][x] == color && grid.getBoard()[z + 4][y - 4][x] == color && grid.getBoard()[z + 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 5;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == color &&
+                                grid.getBoard()[z + 3][y - 3][x] == color && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 4;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == color &&
+                                grid.getBoard()[z + 3][y - 3][x] == neutral && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 3;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == neutral &&
+                                grid.getBoard()[z + 3][y - 3][x] == neutral && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 2;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == neutral && grid.getBoard()[z + 2][y - 2][x] == neutral &&
+                                grid.getBoard()[z + 3][y - 3][x] == neutral && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        else
+                            bestBlock = new Move(x, z) += 0;
+                    }
+
+                }
+            }
+        }
+
+        //--------V-IDK-ANYMORE---------//
+        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
+        {
+            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                    if(z > 5 && x < 3)
+                    {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == color &&
+                                grid.getBoard()[z - 3][y - 3][x + 3] == color && grid.getBoard()[z - 4][y - 4][x + 4] == color && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 5;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == color &&
+                                grid.getBoard()[z - 3][y - 3][x + 3] == color && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 4;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == color &&
+                                grid.getBoard()[z - 3][y - 3][x + 3] == neutral && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 3;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == neutral &&
+                                grid.getBoard()[z - 3][y - 3][x + 3] == neutral && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 2;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == neutral && grid.getBoard()[z - 2][y - 2][x + 2] == neutral &&
+                                grid.getBoard()[z - 3][y - 3][x + 3] == neutral && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        else
+                            bestBlock = new Move(x, z) += 0;
+                    }
+
+                }
+            }
+        }
+
+        //--------V-IDK-ANYMORE-2--------//
+        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
+        {
+            for(int y=0; y+5 < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                    if(z > 5 && x < 3)
+                    {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == color &&
+                                grid.getBoard()[z - 3][y + 3][x + 3] == color && grid.getBoard()[z - 4][y + 4][x + 4] == color && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 5;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == color &&
+                                grid.getBoard()[z - 3][y + 3][x + 3] == color && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 4;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == color &&
+                                grid.getBoard()[z - 3][y + 3][x + 3] == neutral && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 3;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == neutral &&
+                                grid.getBoard()[z - 3][y + 3][x + 3] == neutral && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 2;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == neutral && grid.getBoard()[z - 2][y + 2][x + 2] == neutral &&
+                                grid.getBoard()[z - 3][y + 3][x + 3] == neutral && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        else
+                            bestBlock = new Move(x, z) += 0;
+                    }
+
+                }
+            }
+        }
+
+        //--------V-WTF-AM-I-DOING-------//
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
+        {
+            for(int y=0; y+5 < Board.Y_SIZE; y++)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                    if(z < 3 && x < 3)
+                    {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == color &&
+                                grid.getBoard()[z + 3][y + 3][x + 3] == color && grid.getBoard()[z + 4][y + 4][x + 4] == color && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 5;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == color &&
+                                grid.getBoard()[z + 3][y + 3][x + 3] == color && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 4;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == color &&
+                                grid.getBoard()[z + 3][y + 3][x + 3] == neutral && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 3;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == neutral &&
+                                grid.getBoard()[z + 3][y + 3][x + 3] == neutral && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 2;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == neutral && grid.getBoard()[z + 2][y + 2][x + 2] == neutral &&
+                                grid.getBoard()[z + 3][y + 3][x + 3] == neutral && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        else
+                            bestBlock = new Move(x, z) += 0;
+                    }
+
+                }
+            }
+        }
+
+        //--------V-WTF-AM-I-DOING-2-----//
+        for(int z=0; z+5 < Board.Z_SIZE; z++)
+        {
+            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
+            {
+                for(int x=0; x+5 < Board.X_SIZE; x++)
+                {
+                    if(z < 3 && x < 3)
+                    {
+                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == color &&
+                                grid.getBoard()[z + 3][y - 3][x + 3] == color && grid.getBoard()[z + 4][y - 4][x + 4] == color && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 5;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == color &&
+                                grid.getBoard()[z + 3][y - 3][x + 3] == color && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 4;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == color &&
+                                grid.getBoard()[z + 3][y - 3][x + 3] == neutral && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 3;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == neutral &&
+                                grid.getBoard()[z + 3][y - 3][x + 3] == neutral && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 2;
+
+                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == neutral && grid.getBoard()[z + 2][y - 2][x + 2] == neutral &&
+                                grid.getBoard()[z + 3][y - 3][x + 3] == neutral && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
+                            bestBlock = new Move(x, z) += 1;
+
+                        else
+                            bestBlock = new Move(x, z) += 0;
+                    }
+
+                }
+            }
+        }*/
+
+        return bestBlock;
     }
 
     @Override
