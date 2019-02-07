@@ -1,25 +1,16 @@
-import java.util.ArrayList;
-
-public class Syarief_Andrew_AI extends Player
-{
-    private char opposition;
-    private char color;
+public class P3_AI_SE_AC extends Player {
+    private char color, opposition;
     private final char neutral = '-';
     private Board board;
 
-    private Move block = new Move((int)(Math.random()*7), (int)(Math.random()*7));
-    private Move attack = new Move((int)(Math.random()*7), (int)(Math.random()*7));
+    private Move block = new Move((int) (Math.random() * 7), (int) (Math.random() * 7));
+    private Move attack = new Move((int) (Math.random() * 7), (int) (Math.random() * 7));
 
-    public Syarief_Andrew_AI(Board board, char color)
-    {
-        super("RizBiz", color);
-        this.board = board;
-        this.color = color;
-
-        if (color == 'R'){opposition = 'B';}
-        else if (color == 'B'){opposition = 'R';}
+    public P3_AI_SE_AC(Board board, char color){
+        super("Period 3 Artificial Intelligence Made By Syarief E. & Andrew C.", color);
+        this.board = board; this.color = color;
+        if (color == 'R'){opposition = 'B';} else if (color == 'B'){opposition = 'R';}
     }
-
 
     public Move getMove(Board board)
     {
