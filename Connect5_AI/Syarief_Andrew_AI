@@ -1,4 +1,5 @@
-public class P3_AI_SE_AC extends Player 
+package com.company;
+public class P3_AI_SE_AC extends Player
 {
     private char color, opposition;
     private final char neutral = '-';
@@ -16,10 +17,9 @@ public class P3_AI_SE_AC extends Player
     public Move getMove(Board board)
     {
         Move makeMove = new Move((int)(Math.random()*7), (int)(Math.random()*7));
-
         do{
-            int friendly = makeMove(board, color);
-            int enemy = makeMove(board, opposition);
+            int friendly = makeMove();
+            int enemy = makeMove();
 
             System.out.println("Friendly: "+friendly+"\t Enemy: "+enemy);
 
@@ -39,1233 +39,574 @@ public class P3_AI_SE_AC extends Player
         return makeMove;
     }
 
-    private int makeMove(Board grid, char color)
+    private int makeMove()
     {
-        int priority = 0;
-
-        int count = 0;
-        for(int z=0; z < Board.Z_SIZE; z++) {
-            for (int y = 0; y < Board.Y_SIZE; y++) {
-                for (int x = 0; x < Board.X_SIZE; x++) {
-                    if(board.getBoard()[z][y][x] == 'R' || board.getBoard()[z][y][x] == 'B'){count++;}
-                }
-            }
-        }
-
+        int priority = 0, counter = 0, allied = 0, enemy = 0;
+        
+        int count = 0; for(int z=0; z < 8; z++){for (int y = 0; y < 7; y++){for (int x = 0; x < 8; x++){if(board.getBoard()[z][y][x] == 'R' || board.getBoard()[z][y][x] == 'B'){count++;}}}}
         if(count == 0){attack = new Move((int)(Math.random()*3)+2, (int)(Math.random()*3)+2); return 6;}
-
-        //----------Horizontal-LEFT-RIGHT---------//
-        for(int z=0; z < Board.Z_SIZE; z++) {
-            for(int y=0; y < Board.Y_SIZE; y++) {
-                for(int x=0; x+5 < Board.X_SIZE; x++) {
-
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color && grid.getBoard()[z][y][x + 3] == color && grid.getBoard()[z][y][x + 4] == color && grid.getBoard()[z][y][x + 5] == neutral)
-                    {
-                        if(this.color == color)
+        
+        // Flat-Horizontal //
+        for(int z = 0; z < 8; z++) {
+            for (int y = 0; y < 7; y++) {
+                // Left to Right //
+                for (int x = 0; x < 8; x++) {
+                    if(x + counter < 8){
+                        if(board.getBoard()[z][y][x + counter] != neutral)
                         {
-                            attack = new Move(x + 5, z);
-                            priority = 5;
+                            if(board.getBoard()[z][y][x + counter] == color){allied++;}
+                            else if(board.getBoard()[z][y][x + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
+                        else if(board.getBoard()[z][y][x + counter] == neutral)
                         {
-                            block = new Move(x + 5, z);
-                            return 6;
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color && grid.getBoard()[z][y][x + 3] == color && grid.getBoard()[z][y][x + 4] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if (this.color == color)
-                            {
-                                attack = new Move(x + 4, z);
-                                priority = 4;
-                            }
-
-                            else if (this.opposition == color)
-                            {
-                                block = new Move(x + 4, z);
-                                priority = 5;
-                            }
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == color && grid.getBoard()[z][y][x + 3] == neutral)
-                    {
-                        if(priority < 3)
-                        {
-                            if (this.color == color)
-                            {
-                                attack = new Move(x + 3, z);
-                                priority = 3;
-                            }
-
-                            else if (this.opposition == color)
-                            {
-                                block = new Move(x + 3, z);
-                                priority = 4;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == color && grid.getBoard()[z][y][x + 2] == neutral)
-                    {
-                        if(priority < 2)
-                        {
-                            if (this.color == color)
-                            {
-                                attack = new Move(x + 2, z);
-                                priority = 2;
-                            }
-
-                            else if (this.opposition == color)
-                            {
-                                block = new Move(x + 2, z);
-                                priority = 3;
-                            }
-
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x + 1] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x + 1, z);
-
-                        else if(this.opposition == color)
-                            block = new Move(x + 1, z);
-
-                        priority = 1;
-                    }
+                    else if(x + counter >= 8){counter = 0;}
                 }
-
-                //-----------------------------------REVERSE----------------------------------------//
-                for(int x=Board.X_SIZE-1; x-5 > 0; x--)
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x - 1] == color && grid.getBoard()[z][y][x - 2] == color && grid.getBoard()[z][y][x - 3] == color && grid.getBoard()[z][y][x - 4] == color && grid.getBoard()[z][y][x - 5] == neutral)
-                    {
-                        if(this.color == color)
+                allied = enemy = 0;
+                // Right to Left //
+                for (int x = 7; x >= 0; x--) {
+                    if(x - counter >= 0){
+                        if(board.getBoard()[z][y][x - counter] != neutral)
                         {
-                            attack = new Move(x - 5, z);
-                            priority = 5;
+                            if(board.getBoard()[z][y][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z][y][x - counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
+                        else if(board.getBoard()[z][y][x - counter] == neutral)
                         {
-                            block = new Move(x - 5, z);
-                            return 6;
-                        }
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x - 1] == color && grid.getBoard()[z][y][x - 2] == color && grid.getBoard()[z][y][x - 3] == color && grid.getBoard()[z][y][x - 4] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if (this.color == color)
-                            {
-                                attack = new Move(x - 4, z);
-                                priority = 4;
-                            }
-
-                            else if (this.opposition == color)
-                            {
-                                block = new Move(x - 4, z);
-                                priority = 5;
-                            }
-
-
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x - allied, z);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x - allied, z);}
+                            allied = enemy = 0;
                         }
                     }
+                    else if(x - counter < 0){counter = 0;}
+                }
+            }
+        }
+        
+        allied = enemy = counter = 0;
 
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x - 1] == color && grid.getBoard()[z][y][x - 2] == color && grid.getBoard()[z][y][x - 3] == neutral)
-                    {
-                        if(priority < 3)
+        // Flat-Vertical //
+        for(int x = 0; x < 8; x++) {
+            for (int y = 0; y < 7; y++) {
+                // Left to Right //
+                for (int z = 0; z < 8; z++) {
+                    if(z + counter < 8){
+                        if(board.getBoard()[z + counter][y][x] != neutral)
                         {
-                            if (this.color == color)
-                            {
-                                attack = new Move(x - 3, z);
-                                priority = 3;
-                            }
-
-                            else if (this.opposition == color)
-                            {
-                                block = new Move(x - 3, z);
-                                priority = 4;
-                            }
-
-
+                            if(board.getBoard()[z + counter][y][x] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y][x] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y][x] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x, z + allied);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x, z + enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x - 1] == color && grid.getBoard()[z][y][x - 2] == neutral)
-                    {
-                        if(priority < 2)
+                    else if(z + counter >= 8){counter = 0;}
+                }
+                allied = enemy = 0;
+                // Right to Left //
+                for (int z = 7; z >= 0; z--) {
+                    if(z - counter >= 0){
+                        if(board.getBoard()[z - counter][y][x] != neutral)
                         {
-                            if (this.color == color)
-                            {
-                                attack = new Move(x - 2, z);
-                                priority = 2;
-                            }
-
-                            else if (this.opposition == color)
-                            {
-                                block = new Move(x - 2, z);
-                                priority = 3;
-                            }
-
+                            if(board.getBoard()[z - counter][y][x] == color){allied++;}
+                            else if(board.getBoard()[z - counter][y][x] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z - counter][y][x] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x, z - allied);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x, z - enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y][x - 1] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x - 1, z);
-
-                        else if(this.opposition == color)
-                            block = new Move(x - 1, z);
-
-                        priority = 1;
-                    }
+                    else if(z - counter < 0){counter = 0;}
                 }
             }
         }
 
-        //----------Horizontal-UP-DOWN---------//
-        for(int z=0; z+5 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
+        allied = enemy = counter = 0;
 
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color && grid.getBoard()[z + 3][y][x] == color && grid.getBoard()[z + 4][y][x] == color && grid.getBoard()[z + 5][y][x] == neutral)
-                    {
-                        if(this.color == color)
+        // Straight //
+        for(int x = 0; x < 8; x++){
+            for(int z = 0; z < 8; z++){
+                // Top to Bottom //
+                for(int y = 6; y <= 0; y--){
+                    if(y - counter >= 0){
+                        if(board.getBoard()[z][y - counter][x] != neutral)
                         {
-                            attack = new Move(x, z + 5);
-                            priority = 5;
+                            if(board.getBoard()[z][y - counter][x] == color){allied++;}
+                            else if(board.getBoard()[z][y - counter][x] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
+                        else if(board.getBoard()[z][y - counter][x] == neutral)
                         {
-                            block = new Move(x, z + 5);
-                            return 6;
-                        }
-
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color && grid.getBoard()[z + 3][y][x] == color && grid.getBoard()[z + 4][y][x] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z + 4);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z + 4);
-                                priority = 5;
-                            }
-
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x, z);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x, z);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == color && grid.getBoard()[z + 3][y][x] == neutral)
-                    {
-                        if(priority < 3)
-                        {
-                            if(this.color == color) {
-                                attack = new Move(x, z + 3);
-                                priority = 3;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z + 3);
-                                priority = 4;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == color && grid.getBoard()[z + 2][y][x] == neutral)
-                    {
-                        if(priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z + 2);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z + 2);
-                                priority = 3;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x, z + 1);
-
-                        else if(this.opposition == color)
-                            block = new Move(x, z + 1);
-
-                        priority = 1;
-                    }
+                    else if(y - counter < 0){counter = 0;}
                 }
             }
         }
 
-        //----------Horizontal-UP-DOWN-REVERSE--------//
-        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
+        allied = enemy = counter = 0;
 
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x] == color && grid.getBoard()[z - 2][y][x] == color && grid.getBoard()[z - 3][y][x] == color && grid.getBoard()[z - 4][y][x] == color && grid.getBoard()[z - 5][y][x] == neutral)
-                    {
-                        if(this.color == color)
-                        {
-                            attack = new Move(x, z - 5);
-                            priority = 5;
+        // Flat-Diagonal-(/) //
+        for(int y = 0; y < 7; y++){
+            // Bottom to Top //
+            for(int z = 0; z < 8; z++) {
+                for (int x = 0; x < 8; x++) {
+                    if (x + counter < 8 && z + counter < 8) {
+                        if (board.getBoard()[z + counter][y][x + counter] != neutral) {
+                            if (board.getBoard()[z + counter][y][x + counter] == color){allied++;}
+                            else if (board.getBoard()[z + counter][y][x + counter] == opposition){enemy++;}
+                            counter++;
+                        } 
+                        else if (board.getBoard()[z + counter][y][x + counter] == neutral) {
+                            if (allied > enemy && priority < allied) {priority = allied; attack = new Move(x + allied, z + allied);}
+                            else if (enemy >= allied && priority < enemy) {priority = enemy; block = new Move(x + enemy, z + enemy);}
+                            allied = enemy = 0;
                         }
-
-                        else if(this.opposition == color)
+                    } 
+                    else if (x + counter >= 8 && z + counter >= 8){counter = 0;}
+                }
+            }
+            // Top to Bottom //
+            for(int z = 7; z >= 0; z--){
+                for(int x = 7; x >= 0; x--) {
+                    if(x - counter >= 0 && z - counter >= 0){
+                        if(board.getBoard()[z - counter][y][x - counter] != neutral)
                         {
-                            block = new Move(x, z - 5);
-                            return 6;
+                            if(board.getBoard()[z - counter][y][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z - counter][y][- + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x] == color && grid.getBoard()[z - 2][y][x] == color && grid.getBoard()[z - 3][y][x] == color && grid.getBoard()[z - 4][y][x] == neutral)
-                    {
-                        if(priority < 4)
+                        else if(board.getBoard()[z - counter][y][x - counter] == neutral)
                         {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z - 4);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z - 4);
-                                priority = 5;
-                            }
-
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x - allied, z - allied);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x - enemy, z - enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x] == color && grid.getBoard()[z - 2][y][x] == color && grid.getBoard()[z - 3][y][x] == neutral)
-                    {
-                        if(priority < 3)
-                        {
-                            if(this.color == color) {
-                                attack = new Move(x, z - 3);
-                                priority = 3;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z - 3);
-                                priority = 4;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x] == color && grid.getBoard()[z - 2][y][x] == neutral)
-                    {
-                        if(priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z - 2);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z - 2);
-                                priority = 3;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x, z - 1);
-
-                        else if(this.opposition == color)
-                            block = new Move(x, z - 1);
-
-                        priority = 1;
-                    }
+                    else if(x - counter < 0 && z - counter < 0){counter = 0;}
                 }
             }
         }
 
-        //----------Vertical---------//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+5 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color && grid.getBoard()[z][y + 3][x] == color && grid.getBoard()[z][y + 4][x] == color && grid.getBoard()[z][y + 5][x] == neutral)
-                    {
-                        if(this.color == color)
-                        {
-                            attack = new Move(x, z);
-                            priority = 5;
+        allied = enemy = counter = 0;
+
+        // Flat-Diagonal-(\) //
+        for(int y = 0; y < 7; y++){
+            // Top to Bottom //
+            for(int z = 7; z >= 0; z--) {
+                for (int x = 0; x < 8; x++) {
+                    if (x + counter < 8 && z - counter >= 0) {
+                        if (board.getBoard()[z - counter][y][x + counter] != neutral) {
+                            if (board.getBoard()[z - counter][y][x + counter] == color){allied++;}
+                            else if (board.getBoard()[z - counter][y][x + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
-                        {
-                            block = new Move(x, z);
-                            return 6;
-                        }
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color && grid.getBoard()[z][y + 3][x] == color && grid.getBoard()[z][y + 4][x] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z);
-                                priority = 5;
-                            }
+                        else if (board.getBoard()[z - counter][y][x + counter] == neutral) {
+                            if (allied > enemy && priority < allied) {priority = allied; attack = new Move(x + allied, z - allied);}
+                            else if (enemy >= allied && priority < enemy) {priority = enemy; block = new Move(x + enemy, z - enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color && grid.getBoard()[z][y + 3][x] == neutral)
-                    {
-                        if (priority < 3)
+                    else if (x + counter >= 8 && z - counter < 0){counter = 0;}
+                }
+            }
+            // Bottom to Top //
+            for(int z = 0; z < 8; z++){
+                for(int x = 7; x >= 0 ; x--) {
+                    if(x - counter >= 0 && z + counter < 8){
+                        if(board.getBoard()[z + counter][y][x - counter] != neutral)
                         {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z);
-                                priority = 3;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z);
-                                priority = 4;
-                            }
+                            if(board.getBoard()[z + counter][y][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y][x - counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y][x - counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x - allied, z + allied);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x - enemy, z + enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == neutral)
-                    {
-                        if (priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z);
-                                priority = 3;
-                            }
-
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y+1][x] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x, z);
-
-                        else if(this.opposition == color)
-                            block = new Move(x, z);
-
-                        priority = 1;
-                    }
+                    else if(x - counter < 0 && z + counter >= 8){counter = 0;}
                 }
             }
         }
 
-        //----------Vertical-REVERSE--------//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x] == color && grid.getBoard()[z][y - 2][x] == color && grid.getBoard()[z][y - 3][x] == color && grid.getBoard()[z][y - 4][x] == color && grid.getBoard()[z][y - 5][x] == neutral)
-                    {
-                        if(this.color == color)
+        allied = enemy = counter = 0;
+
+        // 3D-Horizontal-Diagonal //
+        for(int z = 0; z < 8; z++) {
+            // Left to Right & Bottom to Top //
+            for (int y = 6; y >= 0; y--) {
+                for (int x = 0; x < 8; x++) {
+                    if(x + counter < 8 && y - counter >= 0){
+                        if(board.getBoard()[z][y - counter][x + counter] != neutral)
                         {
-                            attack = new Move(x, z);
-                            priority = 5;
+                            if(board.getBoard()[z][y - counter][x + counter] == color){allied++;}
+                            else if(board.getBoard()[z][y - counter][x + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
+                        else if(board.getBoard()[z][y - counter][x + counter] == neutral)
                         {
-                            block = new Move(x, z);
-                            return 6;
-                        }
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x] == color && grid.getBoard()[z][y - 2][x] == color && grid.getBoard()[z][y - 3][x] == color && grid.getBoard()[z][y - 4][x] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z);
-                                priority = 5;
-                            }
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
                         }
                     }
+                    else if(x + counter >= 8 && y - counter < 0){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
 
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x] == color && grid.getBoard()[z][y - 2][x] == color && grid.getBoard()[z][y - 3][x] == neutral)
-                    {
-                        if (priority < 3)
+            // Left to Right & Top to Bottom //
+            for (int y = 0; y < 7; y++) {
+                for (int x = 0; x < 8; x++) {
+                    if(x + counter < 8 && y + counter < 7){
+                        if(board.getBoard()[z][y - counter][x + counter] != neutral)
                         {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z);
-                                priority = 3;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z);
-                                priority = 4;
-                            }
+                            if(board.getBoard()[z][y + counter][x + counter] == color){allied++;}
+                            else if(board.getBoard()[z][y + counter][x + counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z][y + counter][x + counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x] == color && grid.getBoard()[z][y - 2][x] == neutral)
-                    {
-                        if (priority < 2)
+                    else if(x + counter >= 8 && y + counter >= 7){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
+            // Right to Left & Bottom to Top //
+            for (int y = 6; y >= 0; y--) {
+                for (int x = 7; x >= 0; x--) {
+                    if(x - counter >= 0 && y - counter >= 0){
+                        if(board.getBoard()[z][y - counter][x - counter] != neutral)
                         {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x, z);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x, z);
-                                priority = 3;
-                            }
-
+                            if(board.getBoard()[z][y - counter][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z][y - counter][x - counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z][y - counter][x - counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x - allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x - allied, z);}
+                            allied = enemy = 0;
                         }
                     }
+                    else if(x - counter < 0 && y - counter < 0){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
 
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x, z);
-
-                        else if(this.opposition == color)
-                            block = new Move(x, z);
-
-                        priority = 1;
+            // Right to Left & Top to Bottom //
+            for (int y = 0; y < 7; y++) {
+                for (int x = 0; x < 8; x++) {
+                    if(x + counter < 8 && y + counter < 6){
+                        if(board.getBoard()[z][y + counter][x + counter] != neutral)
+                        {
+                            if(board.getBoard()[z][y + counter][x + counter] == color){allied++;}
+                            else if(board.getBoard()[z][y + counter][x + counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z][y + counter][x + counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
+                        }
                     }
+                    else if(x + counter >= 8 && y + counter >= 7){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
+        }
+
+        allied = enemy = counter = 0;
+
+        // 3D-Vertical-Diagonal //
+        for(int x = 0; x < 8; x++) {
+            // Bottom to Top (Flat) & Bottom to Top //
+            for (int y = 6; y >= 0; y--) {
+                for (int z = 0; z < 8; z++) {
+                    if(z + counter < 8 && y - counter >= 0){
+                        if(board.getBoard()[z + counter][y - counter][x] != neutral)
+                        {
+                            if(board.getBoard()[z + counter][y - counter][x] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y - counter][x] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y - counter][x] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
+                        }
+                    }
+                    else if(z + counter >= 8 && y - counter < 0){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
+
+            // Bottom to Top (Flat) & Top to Bottom //
+            for (int y = 0; y < 7; y++) {
+                for (int z = 0; z < 8; z++) {
+                    if(z + counter < 8 && y + counter < 7){
+                        if(board.getBoard()[z + counter][y - counter][x] != neutral)
+                        {
+                            if(board.getBoard()[z + counter][y + counter][x] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y + counter][x] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y + counter][x] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
+                        }
+                    }
+                    else if(z + counter >= 8 && y + counter >= 7){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
+            // Top to Bottom (Flat) & Bottom to Top //
+            for (int y = 6; y >= 0; y--) {
+                for (int z = 7; z >= 0; z--) {
+                    if(z - counter >= 0 && y - counter >= 0){
+                        if(board.getBoard()[z - counter][y - counter][x] != neutral)
+                        {
+                            if(board.getBoard()[z - counter][y - counter][x] == color){allied++;}
+                            else if(board.getBoard()[z - counter][y - counter][x] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z - counter][y - counter][x] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x - allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x - allied, z);}
+                            allied = enemy = 0;
+                        }
+                    }
+                    else if(z - counter < 0 && y - counter < 0){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
+
+            // Top to Bottom (Flat) & Top to Bottom //
+            for (int y = 0; y < 7; y++) {
+                for (int z = 0; z < 8; z++) {
+                    if(z + counter < 8 && y + counter < 6){
+                        if(board.getBoard()[z + counter][y + counter][x] != neutral)
+                        {
+                            if(board.getBoard()[z + counter][y + counter][x] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y + counter][x] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y + counter][x] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x + allied, z);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x + allied, z);}
+                            allied = enemy = 0;
+                        }
+                    }
+                    else if(z + counter >= 8 && y + counter >= 7){counter = 0;}
+                }
+                allied = enemy = 0;
+            }
+        }
+
+        allied = enemy = counter = 0;
+
+        // 3D-Diagonal-(/) //
+
+        // Down //
+        for(int y = 0; y < 7; y++){
+            // Bottom to Top //
+            for(int z = 0; z < 8; z++) {
+                for (int x = 0; x < 8; x++) {
+                    if (x + counter < 8 && z + counter < 8 && y + counter < 7) {
+                        if (board.getBoard()[z + counter][y + counter][x + counter] != neutral) {
+                            if (board.getBoard()[z + counter][y + counter][x + counter] == color){allied++;}
+                            else if (board.getBoard()[z + counter][y + counter][x + counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if (board.getBoard()[z + counter][y + counter][x + counter] == neutral) {
+                            if (allied > enemy && priority < allied) {}//priority = allied; attack = new Move(x + allied, z + allied);}
+                            else if (enemy >= allied && priority < enemy) {}//priority = enemy; block = new Move(x + enemy, z + enemy);}
+                            allied = enemy = 0;
+                        }
+                    }
+                    else if (x + counter >= 8 && z + counter >= 8 && y + counter >= 7){counter = 0;}
+                }
+            }
+            // Top to Bottom //
+            for(int z = 7; z >= 0; z--){
+                for(int x = 7; x >= 0; x--) {
+                    if(x - counter >= 0 && z - counter >= 0 && y + counter < 7){
+                        if(board.getBoard()[z - counter][y + counter][x - counter] != neutral)
+                        {
+                            if(board.getBoard()[z - counter][y + counter][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z - counter][y + counter][- + counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z - counter][y + counter][x - counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x - allied, z - allied);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x - enemy, z - enemy);}
+                            allied = enemy = 0;
+                        }
+                    }
+                    else if(x - counter < 0 && z - counter < 0 && y + counter >= 7){counter = 0;}
                 }
             }
         }
 
-        //---------Diagonal-UP-DOWN-------//
-        for(int z=0; z+5 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color && grid.getBoard()[z + 3][y][x + 3] == color && grid.getBoard()[z + 4][y][x + 4] == color && grid.getBoard()[z + 5][y][x + 5] == neutral)
-                    {
-                        if(this.color == color)
-                        {
-                            attack = new Move(x + 5, z + 5);
-                            priority = 5;
+        // Up //
+        for(int y = 6; y >= 0; y--){
+            // Bottom to Top //
+            for(int z = 0; z < 8; z++) {
+                for (int x = 0; x < 8; x++) {
+                    if (x + counter < 8 && z + counter < 8 && y - counter >= 0) {
+                        if (board.getBoard()[z + counter][y - counter][x + counter] != neutral) {
+                            if (board.getBoard()[z + counter][y - counter][x + counter] == color){allied++;}
+                            else if (board.getBoard()[z + counter][y - counter][x + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
-                        {
-                            block = new Move(x + 5, z + 5);
-                            return 6;
+                        else if (board.getBoard()[z + counter][y + counter][x + counter] == neutral) {
+                            if (allied > enemy && priority < allied) {}//priority = allied; attack = new Move(x + allied, z + allied);}
+                            else if (enemy >= allied && priority < enemy) {}//priority = enemy; block = new Move(x + enemy, z + enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color && grid.getBoard()[z + 3][y][x + 3] == color && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
-                    {
-                        if(priority < 4)
+                    else if (x + counter >= 8 && z + counter >= 8 && y - counter < 0){counter = 0;}
+                }
+            }
+            // Top to Bottom //
+            for(int z = 7; z >= 0; z--){
+                for(int x = 7; x >= 0; x--) {
+                    if(x - counter >= 0 && z - counter >= 0 && y - counter >= 0){
+                        if(board.getBoard()[z - counter][y - counter][x - counter] != neutral)
                         {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x + 4, z + 4);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x + 4, z + 4);
-                                priority = 5;
-                            }
-
+                            if(board.getBoard()[z - counter][y - counter][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z - counter][y - counter][- + counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z - counter][y - counter][x - counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){}//priority = allied; attack = new Move(x - allied, z - allied);}
+                            else if(enemy >= allied && priority < enemy){}//priority = enemy; block = new Move(x - enemy, z - enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == color && grid.getBoard()[z + 3][y][x + 3] == neutral && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
-                    {
-                        if (priority < 3)
-                        {
-                            if(this.color == color) {
-                                attack = new Move(x + 3, z + 3);
-                                priority = 3;
-                            }
-
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x + 3, z + 3);
-                                priority = 4;
-                            }
-
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == color && grid.getBoard()[z + 2][y][x + 2] == neutral && grid.getBoard()[z + 3][y][x + 3] == neutral && grid.getBoard()[z + 4][y][x + 4] == neutral && grid.getBoard()[z + 5][y][x + 5] == neutral)
-                    {
-                        if (priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x + 2, z + 2);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x + 2, z + 2);
-                                priority = 3;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x + 1] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x + 1, z + 1);
-
-                        else if(this.opposition == color)
-                            block = new Move(x + 1, z + 1);
-
-                        priority = 1;
-                    }
+                    else if(x - counter < 0 && z - counter < 0 && y - counter < 0){counter = 0;}
                 }
             }
         }
 
-        //---------Diagonal-UP-DOWN-REVERSE------//
-        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=Board.X_SIZE-1; x-5 > 0; x--)
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x - 1] == color && grid.getBoard()[z - 2][y][x - 2] == color && grid.getBoard()[z - 3][y][x - 3] == color && grid.getBoard()[z - 4][y][x - 4] == color && grid.getBoard()[z - 5][y][x - 5] == neutral)
-                    {
-                        if(this.color == color)
-                        {
-                            attack = new Move(x - 5, z - 5);
-                            priority = 5;
+        allied = enemy = counter = 0;
+
+        // Flat-Diagonal-(\) //
+
+        // Down //
+        for(int y = 0; y < 7; y++){
+            // Top to Bottom //
+            for(int z = 7; z >= 0; z--) {
+                for (int x = 0; x < 8; x++) {
+                    if (x + counter < 8 && z - counter >= 0 && y + counter < 7) {
+                        if (board.getBoard()[z - counter][y + counter][x + counter] != neutral) {
+                            if (board.getBoard()[z - counter][y + counter][x + counter] == color){allied++;}
+                            else if (board.getBoard()[z - counter][y + counter][x + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
-                        {
-                            block = new Move(x - 5, z - 5);
-                            return 6;
-                        }
-
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x - 1] == color && grid.getBoard()[z - 2][y][x - 2] == color && grid.getBoard()[z - 3][y][x - 3] == color && grid.getBoard()[z - 4][y][x - 4] == neutral && grid.getBoard()[z - 5][y][x - 5] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x - 4, z - 4);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x - 4, z - 4);
-                                priority = 5;
-                            }
-
+                        else if (board.getBoard()[z - counter][y + counter][x + counter] == neutral) {
+                            if (allied > enemy && priority < allied) {priority = allied; attack = new Move(x + allied, z - allied);}
+                            else if (enemy >= allied && priority < enemy) {priority = enemy; block = new Move(x + enemy, z - enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x - 1] == color && grid.getBoard()[z - 2][y][x - 2] == color && grid.getBoard()[z - 3][y][x - 3] == neutral && grid.getBoard()[z - 4][y][x - 4] == neutral && grid.getBoard()[z - 5][y][x - 5] == neutral)
-                    {
-                        if (priority < 3)
+                    else if (x + counter >= 8 && z - counter < 0 && y + counter >= 7){counter = 0;}
+                }
+            }
+            // Bottom to Top //
+            for(int z = 0; z < 8; z++){
+                for(int x = 7; x >= 0 ; x--) {
+                    if(x - counter >= 0 && z + counter < 8 && y + counter < 7){
+                        if(board.getBoard()[z + counter][y + counter][x - counter] != neutral)
                         {
-                            if(this.color == color) {
-                                attack = new Move(x - 3, z - 3);
-                                priority = 3;
-                            }
-
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x - 3, z - 3);
-                                priority = 4;
-                            }
-
+                            if(board.getBoard()[z + counter][y + counter][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y + counter][x - counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y + counter][x - counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x - allied, z + allied);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x - enemy, z + enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x - 1] == color && grid.getBoard()[z - 2][y][x - 2] == neutral && grid.getBoard()[z - 3][y][x - 3] == neutral && grid.getBoard()[z - 4][y][x - 4] == neutral && grid.getBoard()[z - 5][y][x - 5] == neutral)
-                    {
-                        if (priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x - 2, z - 2);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x - 2, z - 2);
-                                priority = 3;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x - 1] == neutral && priority <= 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x - 1, z - 1);
-
-                        else if(this.opposition == color)
-                            block = new Move(x - 1, z - 1);
-
-                        priority = 1;
-                    }
+                    else if(x - counter < 0 && z + counter >= 8 && y + counter >= 7){counter = 0;}
                 }
             }
         }
 
-        //---------Diagonal-DOWN-UP-------//
-        for(int z=Board.Z_SIZE-1; z-5> 0; z--)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color && grid.getBoard()[z - 3][y][x + 3] == color && grid.getBoard()[z - 4][y][x + 4] == color && grid.getBoard()[z - 5][y][x + 5] == neutral)
-                    {
-                        if(this.color == color)
-                        {
-                            attack = new Move(x + 5, z - 5);
-                            priority = 5;
+        // Up //
+        for(int y = 6; y >= 0; y--){
+            // Top to Bottom //
+            for(int z = 7; z >= 0; z--) {
+                for (int x = 0; x < 8; x++) {
+                    if (x + counter < 8 && z - counter >= 0 && y - counter >= 0) {
+                        if (board.getBoard()[z - counter][y - counter][x + counter] != neutral) {
+                            if (board.getBoard()[z - counter][y - counter][x + counter] == color){allied++;}
+                            else if (board.getBoard()[z - counter][y - counter][x + counter] == opposition){enemy++;}
+                            counter++;
                         }
-
-                        else if(this.opposition == color)
-                        {
-                            block = new Move(x + 5, z - 5);
-                            return 6;
-                        }
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color && grid.getBoard()[z - 3][y][x + 3] == color && grid.getBoard()[z - 4][y][x + 4] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x + 4, z - 4);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x + 4, z - 4);
-                                priority = 5;
-                            }
-
+                        else if (board.getBoard()[z - counter][y - counter][x + counter] == neutral) {
+                            if (allied > enemy && priority < allied) {priority = allied; attack = new Move(x + allied, z - allied);}
+                            else if (enemy >= allied && priority < enemy) {priority = enemy; block = new Move(x + enemy, z - enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == color && grid.getBoard()[z - 3][y][x + 3] == neutral)
-                    {
-                        if (priority < 3)
+                    else if (x + counter >= 8 && z - counter < 0 && y - counter >= 0){counter = 0;}
+                }
+            }
+            // Bottom to Top //
+            for(int z = 0; z < 8; z++){
+                for(int x = 7; x >= 0 ; x--) {
+                    if(x - counter >= 0 && z + counter < 8 && y - counter >= 0){
+                        if(board.getBoard()[z + counter][y - counter][x - counter] != neutral)
                         {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x + 3, z - 3);
-                                priority = 3;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x + 3, z - 3);
-                                priority = 4;
-                            }
-
+                            if(board.getBoard()[z + counter][y - counter][x - counter] == color){allied++;}
+                            else if(board.getBoard()[z + counter][y - counter][x - counter] == opposition){enemy++;}
+                            counter++;
+                        }
+                        else if(board.getBoard()[z + counter][y - counter][x - counter] == neutral)
+                        {
+                            if(allied > enemy && priority < allied){priority = allied; attack = new Move(x - allied, z + allied);}
+                            else if(enemy >= allied && priority < enemy){priority = enemy; block = new Move(x - enemy, z + enemy);}
+                            allied = enemy = 0;
                         }
                     }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == color && grid.getBoard()[z - 2][y][x + 2] == neutral)
-                    {
-                        if (priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x + 2, z - 2);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x + 2, z - 2);
-                                priority = 3;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y][x + 1] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x + 1, z - 1);
-
-                        else if(this.opposition == color)
-                            block = new Move(x + 1, z - 1);
-
-                        priority = 1;
-                    }
+                    else if(x - counter < 0 && z + counter >= 8 && y - counter >= 0){counter = 0;}
                 }
             }
         }
-
-        //---------Diagonal-DOWN-UP-REVERSE------//
-        for(int z=0; z+5> Board.Z_SIZE; z++)
-        {
-            for(int y=0; y < Board.Y_SIZE; y++)
-            {
-                for(int x=Board.X_SIZE-1; x-5 > 0; x--)
-
-                {
-                    if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x - 1] == color && grid.getBoard()[z + 2][y][x - 2] == color && grid.getBoard()[z + 3][y][x - 3] == color && grid.getBoard()[z + 4][y][x - 4] == color && grid.getBoard()[z + 5][y][x - 5] == neutral)
-                    {
-                        if(this.color == color)
-                        {
-                            attack = new Move(x - 5, z + 5);
-                            priority = 5;
-                        }
-
-                        else if(this.opposition == color)
-                        {
-                            block = new Move(x - 5, z + 5);
-                            return 6;
-                        }
-
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x - 1] == color && grid.getBoard()[z + 2][y][x - 2] == color && grid.getBoard()[z + 3][y][x - 3] == color && grid.getBoard()[z + 4][y][x - 4] == neutral)
-                    {
-                        if(priority < 4)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x - 4, z + 4);
-                                priority = 4;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x - 4, z + 4);
-                                priority = 5;
-                            }
-
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x - 1] == color && grid.getBoard()[z + 2][y][x - 2] == color && grid.getBoard()[z + 3][y][x - 3] == neutral)
-                    {
-                        if (priority < 3)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x - 3, z + 3);
-                                priority = 3;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x - 3, z + 3);
-                                priority = 4;
-                            }
-
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x - 1] == color && grid.getBoard()[z + 2][y][x - 2] == neutral)
-                    {
-                        if (priority < 2)
-                        {
-                            if(this.color == color)
-                            {
-                                attack = new Move(x - 2, z + 2);
-                                priority = 2;
-                            }
-
-                            else if(this.opposition == color)
-                            {
-                                block = new Move(x - 2, z + 2);
-                                priority = 3;
-                            }
-                        }
-                    }
-
-                    else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y][x - 1] == neutral && priority < 1)
-                    {
-                        if(this.color == color)
-                            attack = new Move(x - 1, z + 1);
-
-                        else if(this.opposition == color)
-                            block = new Move(x - 1, z + 1);
-
-                        priority = 1;
-                    }
-                }
-            }
-        }
-
-        /*//--------V-Diagonal-UP-DOWN-WALL-1----//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+5 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == color && grid.getBoard()[z][y + 2][x + 2] == color && grid.getBoard()[z][y + 3][x + 3] == color && grid.getBoard()[z][y + 4][x + 4] == color && grid.getBoard()[z][y + 5][x + 5] == neutral)
-                        {
-                            bestMove = new Move(x+5, z);
-                            priority = 5;
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == color && grid.getBoard()[z][y + 2][x + 2] == color && grid.getBoard()[z][y + 3][x + 3] == color && grid.getBoard()[z][y + 4][x + 4] == neutral)
-                        {
-                            bestMove = new Move(x+4, z);
-                            priority = 4;
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x] == color && grid.getBoard()[z][y + 2][x] == color && grid.getBoard()[z][y + 3][x + 3] == neutral)
-                        {
-                            if (priority < 3)
-                            {
-                                bestMove = new Move(x+3, z);
-                                priority = 3;
-                            }
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == color && grid.getBoard()[z][y + 2][x + 2] == neutral)
-                        {
-                            if (priority < 2)
-                            {
-                                bestMove = new Move(x+2, z);
-                                priority = 2;
-                            }
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y + 1][x + 1] == neutral)
-                        {
-
-                        }
-
-                        if(priority == 5)
-                            return bestMove;
-
-                }
-            }
-        }
-
-        //--------V-Diagonal-DOWN-UP-WALL-1----//
-        for(int z=0; z < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == color && grid.getBoard()[z][y - 2][x + 2] == color && grid.getBoard()[z][y - 3][x + 3] == color && grid.getBoard()[z][y - 4][x + 4] == color && grid.getBoard()[z][y - 5][x + 5] == neutral)
-                        {
-                            bestMove = new Move(x+5, z);
-                            priority = 5;
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == color && grid.getBoard()[z][y - 2][x + 2] == color && grid.getBoard()[z][y - 3][x + 3] == color && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
-                        {
-                            bestMove = new Move(x+4, z);
-                            priority = 4;
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x] == color && grid.getBoard()[z][y - 2][x] == color && grid.getBoard()[z][y - 3][x + 3] == neutral && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
-                        {
-                            if (priority < 3)
-                            {
-                                bestMove = new Move(x+3, z);
-                                priority = 3;
-                            }
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == color && grid.getBoard()[z][y - 2][x + 2] == neutral && grid.getBoard()[z][y - 3][x + 3] == neutral && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
-                        {
-                            if (priority < 2)
-                            {
-                                bestMove = new Move(x+2, z);
-                                priority = 2;
-                            }
-                        }
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y - 1][x + 1] == neutral && grid.getBoard()[z][y - 2][x + 2] == neutral && grid.getBoard()[z][y - 3][x + 3] == neutral && grid.getBoard()[z][y - 4][x + 4] == neutral && grid.getBoard()[z][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        if(priority == 5)
-                            return bestMove;
-
-
-                }
-            }
-        }
-
-        //--------V-Diagonal-DOWN-UP-WALL-2----//
-        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
-        {
-            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(z > 5)
-                    {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == color && grid.getBoard()[z - 3][y - 3][x] == color && grid.getBoard()[z - 4][y - 4][x] == color && grid.getBoard()[z - 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 5;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == color && grid.getBoard()[z - 3][y - 3][x] == color && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 4;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == color && grid.getBoard()[z - 3][y - 3][x] == neutral && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 3;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == color && grid.getBoard()[z - 2][y - 2][x] == neutral && grid.getBoard()[z - 3][y - 3][x] == neutral && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 2;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x] == neutral && grid.getBoard()[z - 2][y - 2][x] == neutral && grid.getBoard()[z - 3][y - 3][x] == neutral && grid.getBoard()[z - 4][y - 4][x] == neutral && grid.getBoard()[z - 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        else
-                            bestMove = new Move(x, z) += 0;
-                    }
-
-                }
-            }
-        }
-
-        //--------V-Diagonal--UP-DOWN-WALL-2---//
-        for(int z=0; z+5 < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
-            {
-                for(int x=0; x < Board.X_SIZE; x++)
-                {
-                    if(z < 3)
-                    {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == color && grid.getBoard()[z + 3][y - 3][x] == color && grid.getBoard()[z + 4][y - 4][x] == color && grid.getBoard()[z + 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 5;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == color && grid.getBoard()[z + 3][y - 3][x] == color && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 4;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == color && grid.getBoard()[z + 3][y - 3][x] == neutral && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 3;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == color && grid.getBoard()[z + 2][y - 2][x] == neutral && grid.getBoard()[z + 3][y - 3][x] == neutral && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 2;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x] == neutral && grid.getBoard()[z + 2][y - 2][x] == neutral && grid.getBoard()[z + 3][y - 3][x] == neutral && grid.getBoard()[z + 4][y - 4][x] == neutral && grid.getBoard()[z + 5][y - 5][x] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        else
-                            bestMove = new Move(x, z) += 0;
-                    }
-
-                }
-            }
-        }
-
-        //--------V-IDK-ANYMORE---------//
-        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
-        {
-            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-                    if(z > 5 && x < 3)
-                    {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == color && grid.getBoard()[z - 3][y - 3][x + 3] == color && grid.getBoard()[z - 4][y - 4][x + 4] == color && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 5;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == color && grid.getBoard()[z - 3][y - 3][x + 3] == color && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 4;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == color && grid.getBoard()[z - 3][y - 3][x + 3] == neutral && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 3;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == color && grid.getBoard()[z - 2][y - 2][x + 2] == neutral && grid.getBoard()[z - 3][y - 3][x + 3] == neutral && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 2;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y - 1][x + 1] == neutral && grid.getBoard()[z - 2][y - 2][x + 2] == neutral && grid.getBoard()[z - 3][y - 3][x + 3] == neutral && grid.getBoard()[z - 4][y - 4][x + 4] == neutral && grid.getBoard()[z - 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        else
-                            bestMove = new Move(x, z) += 0;
-                    }
-
-                }
-            }
-        }
-
-        //--------V-IDK-ANYMORE-2--------//
-        for(int z=Board.Z_SIZE-1; z-5 > 0; z--)
-        {
-            for(int y=0; y+5 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-                    if(z > 5 && x < 3)
-                    {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == color && grid.getBoard()[z - 3][y + 3][x + 3] == color && grid.getBoard()[z - 4][y + 4][x + 4] == color && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 5;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == color && grid.getBoard()[z - 3][y + 3][x + 3] == color && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 4;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == color && grid.getBoard()[z - 3][y + 3][x + 3] == neutral && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 3;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == color && grid.getBoard()[z - 2][y + 2][x + 2] == neutral && grid.getBoard()[z - 3][y + 3][x + 3] == neutral && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 2;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z - 1][y + 1][x + 1] == neutral && grid.getBoard()[z - 2][y + 2][x + 2] == neutral && grid.getBoard()[z - 3][y + 3][x + 3] == neutral && grid.getBoard()[z - 4][y + 4][x + 4] == neutral && grid.getBoard()[z - 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        else
-                            bestMove = new Move(x, z) += 0;
-                    }
-
-                }
-            }
-        }
-
-        //--------V-WTF-AM-I-DOING-------//
-        for(int z=0; z+5 < Board.Z_SIZE; z++)
-        {
-            for(int y=0; y+5 < Board.Y_SIZE; y++)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-                    if(z < 3 && x < 3)
-                    {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == color && grid.getBoard()[z + 3][y + 3][x + 3] == color && grid.getBoard()[z + 4][y + 4][x + 4] == color && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 5;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == color && grid.getBoard()[z + 3][y + 3][x + 3] == color && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 4;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == color && grid.getBoard()[z + 3][y + 3][x + 3] == neutral && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 3;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == color && grid.getBoard()[z + 2][y + 2][x + 2] == neutral && grid.getBoard()[z + 3][y + 3][x + 3] == neutral && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 2;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y + 1][x + 1] == neutral && grid.getBoard()[z + 2][y + 2][x + 2] == neutral && grid.getBoard()[z + 3][y + 3][x + 3] == neutral && grid.getBoard()[z + 4][y + 4][x + 4] == neutral && grid.getBoard()[z + 5][y + 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        else
-                            bestMove = new Move(x, z) += 0;
-                    }
-
-                }
-            }
-        }
-
-        //--------V-WTF-AM-I-DOING-2-----//
-        for(int z=0; z+5 < Board.Z_SIZE; z++)
-        {
-            for(int y=Board.Y_SIZE-1; y-5 > 0; y--)
-            {
-                for(int x=0; x+5 < Board.X_SIZE; x++)
-                {
-                    if(z < 3 && x < 3)
-                    {
-                        if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == color && grid.getBoard()[z + 3][y - 3][x + 3] == color && grid.getBoard()[z + 4][y - 4][x + 4] == color && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 5;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == color && grid.getBoard()[z + 3][y - 3][x + 3] == color && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 4;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == color && grid.getBoard()[z + 3][y - 3][x + 3] == neutral && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 3;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == color && grid.getBoard()[z + 2][y - 2][x + 2] == neutral && grid.getBoard()[z + 3][y - 3][x + 3] == neutral && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 2;
-
-                        else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z + 1][y - 1][x + 1] == neutral && grid.getBoard()[z + 2][y - 2][x + 2] == neutral && grid.getBoard()[z + 3][y - 3][x + 3] == neutral && grid.getBoard()[z + 4][y - 4][x + 4] == neutral && grid.getBoard()[z + 5][y - 5][x + 5] == neutral)
-                            bestMove = new Move(x, z) += 1;
-
-                        else
-                            bestMove = new Move(x, z) += 0;
-                    }
-
-                }
-            }
-        }*/
 
         return priority;
     }
