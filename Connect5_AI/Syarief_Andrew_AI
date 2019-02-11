@@ -498,7 +498,7 @@ public class P3_AI_SE_AC extends Player
 
                         }
                     }
-
+                    /*
                     else if (grid.getBoard()[z][y][x] == color && grid.getBoard()[z][y-1][x] == neutral && priority <= 1)
                     {
                         if(this.color == color && !grid.isFull(new Move(x, z)))
@@ -508,7 +508,7 @@ public class P3_AI_SE_AC extends Player
                             block = new Move(x, z);
 
                         priority = 1;
-                    }
+                    }*/
                 }
             }
         }
